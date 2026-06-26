@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ app_name}} - Project Invitation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fafbfc;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 8px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            color: #333333;
+            margin-bottom: 30px;
+        }
+
+        .text {
+            text-align: center;
+            font-size: 16px;
+            color: #555555;
+            line-height: 1.6;
+        }
+
+        .project-box {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .project-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .project-description {
+            color: #555555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-details {
+            font-size: 15px;
+            color: #444444;
+            line-height: 1.8;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #009688;
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        .link-section {
+            text-align: center;
+            font-size: 15px;
+            color: #555555;
+            line-height: 1.6;
+        }
+
+        .divider {
+            border-top: 2px solid #cccccc;
+            margin: 30px 0;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1 class="title">
+        {{ app_name }} - Project Invitation
+    </h1>
+
+    <p class="text">
+        Hello {{ username }},
+    </p>
+
+    <p class="text">
+        You have been invited to collaborate on the following project:
+    </p>
+
+    <div class="project-box">
+
+        <div class="project-name">
+            {{ project_name }}
+        </div>
+
+        <div class="project-description">
+            {{ project_description }}
+        </div>
+
+        <div class="project-details">
+            <strong>Invited by:</strong> {{ invited_by }}<br>
+            <strong>Role:</strong> {{ assigned_role }}<br>
+            <strong>Invitation expires in:</strong> {{ valid_hours }} hours
+        </div>
+
+    </div>
+
+    <p class="text">
+        Click the button below to accept the invitation and join the project.
+    </p>
+
+    <div class="button-container">
+        <a href="{{ invitation_link }}" class="button">
+            Join Project
+        </a>
+    </div>
+
+    <div class="link-section">
+
+        <p>
+            If the button above does not work, copy and paste the following
+            link into your browser:
+        </p>
+
+        <p>
+            <a href="{{ invitation_link }}">
+                {{ invitation_link }}
+            </a>
+        </p>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+
+        <p>
+            This invitation can only be used once and will expire
+            after the specified time period.
+        </p>
+
+        <p>
+            If you were not expecting this invitation, you can safely
+            ignore this email.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```
