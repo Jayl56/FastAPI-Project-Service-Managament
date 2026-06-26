@@ -19,7 +19,7 @@ def test_download_document(
         "https://fake-bucket.s3.amazonaws.com/file.pdf"
     )
     with patch(
-            "backend.s3_utils.get_s3_doc_url_download",
+            "backend.utils.s3_utils.get_s3_doc_url_download",
             return_value=expected_url,
     ):
       r = client.get(
@@ -40,7 +40,7 @@ def test_update_document(
     doc_for_test_user_project: Document,
 ):
     with patch (
-        "backend.s3_utils.update_s3_file_object",
+        "backend.utils.s3_utils.update_s3_file_object",
     ) as mock_update:
 
        r = client.put(
@@ -76,7 +76,7 @@ def test_delete_document(
     doc_id = doc_for_test_user_project.doc_id
 
     with patch(
-            "backend.s3_utils.delete_s3_file_object"
+            "backend.utils.s3_utils.delete_s3_file_object"
     ) as mock_delete:
       r = client.delete(
         f"{settings.API_HOST}/document/{doc_id}",

@@ -13,14 +13,23 @@ from fastapi import HTTPException
 import jwt
 import uuid
 
-def test_get_current_user(db:Session,owner_user_token_headers:dict[str,str])->None:
+def test_get_current_user(
+        db:Session,
+        owner_user_token_headers:dict[str,str]
+)->None:
+
     token = owner_user_token_headers["Authorization"].split(" ")[1]
     user =control.get_current_user(db,token)
-    user_db=crud.get_user_by_email(db_session=db,email=settings.EMAIL_TEST_USER)
+    user_db=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     assert user.user_id==user_db.user_id
 
 def test_get_current_user_expired_token_error(db:Session)->None:
-    expired_token=create_access_token(random_lower_string(),timedelta(seconds=-1))
+    expired_token=create_access_token(
+        random_lower_string(),
+        timedelta(seconds=-1)
+    )
     with pytest.raises(HTTPException) as exc:
        control.get_current_user(db,expired_token)
 
@@ -51,7 +60,10 @@ def test_get_current_user_validation_error(db:Session)->None:
     assert exc.value.status_code == 403
     assert exc.value.detail == "Could not validate credentials"
 
-def test_get_current_user_non_existent_user_error(db:Session,user_create:UserCreate)->None:
+def test_get_current_user_non_existent_user_error(
+        db:Session,
+        user_create:UserCreate)->None:
+
     fake_id=uuid.uuid4()
     token=create_access_token(fake_id,timedelta(minutes=1))
     with pytest.raises(HTTPException) as exc:
@@ -73,7 +85,11 @@ def test_get_actual_project_non_existent_project_error(db:Session)->None:
     assert exc.value.detail == "Project does not exist."
 
 @pytest.mark.parametrize("role",list(ProjectAccess))
-def test_is_member(db:Session,crud_test_project:Project,crud_test_user:User,role):
+def test_is_member(
+        db:Session,
+        crud_test_project:Project,
+        crud_test_user:User,role):
+
     user_in = UserCreate(
         username=random_lower_string(),
         email=random_email(),
@@ -91,13 +107,17 @@ def test_is_member(db:Session,crud_test_project:Project,crud_test_user:User,role
        member_out=control.is_member(db,crud_test_project,crud_test_user)
     assert member_out
 
-def test_is_member_not_enough_permissions_to_project(db:Session,crud_test_project:Project)->None:
+def test_is_member_not_enough_permissions_to_project(
+        db:Session,
+        crud_test_project:Project)->None:
     user_in = UserCreate(
         username=random_lower_string(),
         email=random_email(),
         password=random_lower_string(),
     )
-    user2=crud.create_user(db_session=db, user_create=user_in)
+    user2=crud.create_user(
+        db_session=db,
+        user_create=user_in)
 
     with pytest.raises(HTTPException) as exc:
         control.is_member(db,crud_test_project,user2)
@@ -105,13 +125,23 @@ def test_is_member_not_enough_permissions_to_project(db:Session,crud_test_projec
     assert exc.value.status_code == 403
     assert exc.value.detail == "Not enough permissions.You are neither a participant nor an owner of this project."
 
-def test_is_owner(db:Session,crud_test_project:Project,crud_test_user:User)->None:
-    member=crud.authenticate_project_member(db_session=db, project_id=crud_test_project.project_id,user_id=crud_test_user.user_id)
+def test_is_owner(
+        db:Session,
+        crud_test_project:Project,
+        crud_test_user:User)->None:
+    member=crud.authenticate_project_member(
+        db_session=db,
+        project_id=crud_test_project.project_id,
+        user_id=crud_test_user.user_id)
     owner=control.is_owner(member)
     assert owner
 
 @pytest.mark.parametrize("role",list(ProjectAccess))
-def test_is_owner_common_member_error(db:Session,crud_test_project:Project,role)->None:
+def test_is_owner_common_member_error(
+        db:Session,
+        crud_test_project:Project,
+        role
+)->None:
     if role != ProjectAccess.owner:
      user_in = UserCreate(
         username=random_lower_string(),
@@ -124,21 +154,32 @@ def test_is_owner_common_member_error(db:Session,crud_test_project:Project,role)
         project_id=crud_test_project.project_id,
         user_id=user2.user_id,
         member_type=role)
-     member = crud.authenticate_project_member(db_session=db, project_id=crud_test_project.project_id,
-                                                  user_id=user2.user_id)
+     member = crud.authenticate_project_member(
+         db_session=db,
+         project_id=crud_test_project.project_id,
+        user_id=user2.user_id)
      with pytest.raises(HTTPException) as exc:
         control.is_owner(member)
 
      assert exc.value.status_code == 403
      assert exc.value.detail == "Not enough permissions, you are not the project's owner."
 
-def test_get_actual_document(db:Session,doc_for_crud_test_project:Document,crud_test_project:Project,crud_test_user:User)->None:
+def test_get_actual_document(
+        db:Session,
+        doc_for_crud_test_project:Document,
+        crud_test_project:Project,
+        crud_test_user:User
+)->None:
     doc_out=control.get_actual_document(db, doc_for_crud_test_project.doc_id,crud_test_user)
     project_doc=crud_test_project.documents[0]
     assert doc_out
     assert doc_out.filename==project_doc.filename
 
-def test_get_actual_document_non_authorized_user_error(db:Session,doc_for_crud_test_project:Project,crud_test_project:Project)->None:
+def test_get_actual_document_non_authorized_user_error(
+        db:Session,
+        doc_for_crud_test_project:Project,
+        crud_test_project:Project
+)->None:
     user_non_auth=create_random_user(db)
     with pytest.raises(HTTPException) as exc:
         control.get_actual_document(db, doc_for_crud_test_project.doc_id, user_non_auth)
@@ -146,7 +187,10 @@ def test_get_actual_document_non_authorized_user_error(db:Session,doc_for_crud_t
     assert exc.value.status_code == 403
     assert exc.value.detail == "You are not a member of the project this document belongs to."
 
-def test_get_actual_document_non_existent_doc_error(db:Session,crud_test_user:User)->None:
+def test_get_actual_document_non_existent_doc_error(
+        db:Session,
+        crud_test_user:User
+)->None:
     fake_id=uuid.uuid4()
     with pytest.raises(HTTPException) as exc:
         control.get_actual_document(db,fake_id,crud_test_user)

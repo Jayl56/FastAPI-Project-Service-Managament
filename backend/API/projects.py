@@ -36,14 +36,13 @@ DocumentPublicByProject,
 DocumentsPublic,
 Message
 )
-from backend.email_utils import (
+from backend.utils.email_utils import (
 generate_email_token,
 generate_invitation_email,
 send_email,
 verify_email_token
 )
-
-import backend.s3_utils as s3_utils
+import backend.utils.s3_utils as s3_utils
 
 
 
@@ -56,7 +55,10 @@ router=APIRouter(tags=["projects"])
 def generate_project(*,session:SessionDep,
                      current_user:CurrentUser,
                      project_in:CreateProject)->ProjectPublicInfo:
-    new_project=crud_db.create_project(db_session=session,new_project=project_in,owner_id=current_user.user_id)
+    new_project=crud_db.create_project(
+        db_session=session,
+        new_project=project_in,
+        owner_id=current_user.user_id)
     return new_project
 
 @router.get(
@@ -100,7 +102,10 @@ def get_project_info(*,project:ActiveProject)->ProjectPublicInfo:
             response_model=ProjectPublicInfo,
             dependencies=[Depends(is_member)])
 def update_project_info(*,session:SessionDep,project:ActiveProject,project_in:UpdateProject)->ProjectPublicInfo:
-    updated_project=crud_db.update_project_details(db_session=session,original_project=project,info_to_update=project_in)
+    updated_project=crud_db.update_project_details(
+        db_session=session,
+        original_project=project,
+        info_to_update=project_in)
     return updated_project
 
 

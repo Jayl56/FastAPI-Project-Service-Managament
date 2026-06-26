@@ -17,8 +17,6 @@ from backend.tests.utils.documents import create_random_docs,create_random_docs_
 from backend.tests.utils.utils import random_email, random_lower_string
 
 
-
-
 @pytest.fixture(autouse=True)
 def db()->Generator[Session,None,None]:
     with Session(engine) as session:
@@ -81,17 +79,34 @@ def files_to_upload() -> list[tuple]:
     ]
 
 @pytest.fixture
-def crud_test_user(db:Session,user_create:UserCreate)->User:
-    user = crud.create_user(db_session=db, user_create=user_create)
+def crud_test_user(
+        db:Session,
+        user_create:UserCreate
+)->User:
+    user = crud.create_user(
+        db_session=db,
+        user_create=user_create
+    )
     return user
 
 @pytest.fixture
-def crud_test_project(db:Session,crud_test_user:User,project_create:CreateProject)->Project:
-    project=crud.create_project(db_session=db, new_project=project_create,owner_id=crud_test_user.user_id)
+def crud_test_project(
+        db:Session,
+        crud_test_user:User,
+        project_create:CreateProject
+)->Project:
+    project=crud.create_project(
+        db_session=db,
+        new_project=project_create,
+        owner_id=crud_test_user.user_id
+    )
     return project
 
 @pytest.fixture
-def doc_for_crud_test_project(db:Session,crud_test_project:Project)->Document:
+def doc_for_crud_test_project(
+        db:Session,
+        crud_test_project:Project
+)->Document:
     doc=create_random_docs_for_project(db,crud_test_project)[0]
     return doc
 
@@ -101,8 +116,15 @@ def client():
         yield c
 
 @pytest.fixture
-def owner_user_token_headers(client:TestClient,db:Session)->dict[str, str]:
-    return authentication_token_from_email(client=client,email=settings.EMAIL_TEST_USER,db=db)
+def owner_user_token_headers(
+        client:TestClient,
+        db:Session
+)->dict[str, str]:
+    return authentication_token_from_email(
+        client=client,
+        email=settings.EMAIL_TEST_USER,
+        db=db
+    )
 
 @pytest.fixture
 def owner_user_auth_data(
@@ -116,9 +138,19 @@ def owner_user_auth_data(
     )
 
 @pytest.fixture
-def test_user_project(db:Session,project_create:CreateProject)->Project:
-    test_user=crud.get_user_by_email(db_session=db,email=settings.EMAIL_TEST_USER)
-    project=crud.create_project(db_session=db, new_project=project_create,owner_id=test_user.user_id)
+def test_user_project(
+        db:Session,
+        project_create:CreateProject
+)->Project:
+    test_user=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER
+    )
+    project=crud.create_project(
+        db_session=db,
+        new_project=project_create,
+        owner_id=test_user.user_id
+    )
     return project
 
 @pytest.fixture

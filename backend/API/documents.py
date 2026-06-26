@@ -10,7 +10,7 @@ DocumentPublic,
 UploadDocuments,
 )
 from backend.core.app_config import settings
-import backend.s3_utils as s3_utils
+import backend.utils.s3_utils as s3_utils
 
 
 

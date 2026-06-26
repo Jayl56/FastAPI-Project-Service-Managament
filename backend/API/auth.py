@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import Annotated
 from backend.core.security import Token,create_access_token
 import backend.crud_db as crud_db
-from backend.email_utils import (
+from backend.utils.email_utils import (
 send_email,
 generate_reset_password_email,
 generate_email_token,

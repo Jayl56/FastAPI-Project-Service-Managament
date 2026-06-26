@@ -13,7 +13,7 @@ from backend.models.models_API import (
     ProjectPublic,
     ProjectsPublic,
     DocumentsPublic)
-from backend.email_utils import EmailData,generate_email_token
+from backend.utils.email_utils import EmailData,generate_email_token
 from backend.tests.utils.documents import create_random_docs,create_random_docs_for_project
 from backend.tests.utils.utils import random_lower_string,random_email
 import backend.crud_db as crud
@@ -25,9 +25,19 @@ import pytest
 
 
 
-def test_generate_project(db: Session,owner_user_token_headers:dict[str,str],client: TestClient):
-    data={"name":"New Project","description":"This is a new project"}
-    r=client.post(f"{settings.API_HOST}/projects", headers=owner_user_token_headers, json=data)
+def test_generate_project(
+        db: Session,
+        owner_user_token_headers:dict[str,str],
+        client: TestClient
+):
+    data={"name":"New Project",
+          "description":"This is a new project"}
+
+    r=client.post(
+        f"{settings.API_HOST}/projects",
+        headers=owner_user_token_headers,
+        json=data
+    )
 
     created_project=ProjectPublicInfo.model_validate(r.json())
 
@@ -68,14 +78,10 @@ def test_get_projects_all_for_user(
     )
 
     projects_info=ProjectsPublic.model_validate(response.json())
-
-
-
     expected_ids = {
         test_user_project.project_id,
         crud_test_project.project_id,
     }
-
     returned_ids = {
         project.project_id
         for project in projects_info.projects
@@ -91,7 +97,10 @@ def test_get_projects_for_owner(
     owner_user_token_headers:dict[str,str],
     test_user_project: Project,
 ):
-    r=client.get(f"{settings.API_HOST}/projects/?role={ProjectAccess.owner.value}", headers=owner_user_token_headers)
+    r=client.get(
+        f"{settings.API_HOST}/projects/?role={ProjectAccess.owner.value}",
+            headers=owner_user_token_headers
+    )
     project_info=ProjectsPublic.model_validate(r.json())
 
     assert r.status_code == 200
@@ -109,9 +118,18 @@ def test_get_projects_for_role(
     crud_test_project: Project,
     role:ProjectAccess,
 ):
-    test_user = crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
-    crud.create_project_member(db_session=db, project_id=crud_test_project.project_id,user_id=test_user.user_id, member_type=role)
-    response =client.get(f"{settings.API_HOST}/projects/?role={role.value}", headers=owner_user_token_headers)
+    test_user = crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
+    crud.create_project_member(
+        db_session=db,
+        project_id=crud_test_project.project_id,
+        user_id=test_user.user_id,
+        member_type=role)
+    response =client.get(
+        f"{settings.API_HOST}/projects/?role={role.value}",
+        headers=owner_user_token_headers
+    )
     project_info = ProjectsPublic.model_validate(response.json())
 
     assert response.status_code == 200
@@ -125,7 +143,10 @@ def test_get_projects_with_document(
     test_user_project: Project,
 ):
     doc=create_random_docs_for_project(db,test_user_project)[0]
-    r=client.get(f"{settings.API_HOST}/projects/", headers=owner_user_token_headers)
+    r=client.get(
+        f"{settings.API_HOST}/projects/",
+        headers=owner_user_token_headers
+    )
     project_info = ProjectsPublic.model_validate(r.json())
     doc_from_r=project_info.projects[0].documents[0]
 
@@ -140,7 +161,10 @@ def test_get_project_info(
     owner_user_token_headers:dict[str,str],
     test_user_project: Project,):
 
-    r = client.get(f"{settings.API_HOST}/project/{test_user_project.project_id}/info", headers=owner_user_token_headers)
+    r = client.get(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
+        headers=owner_user_token_headers
+    )
 
     project = ProjectPublicInfo.model_validate(r.json())
     assert r.status_code == 200
@@ -149,12 +173,21 @@ def test_get_project_info(
     assert project.project_id
     assert isinstance(project.updated_at, datetime.datetime)
 
-def test_update_project_info(db:Session,client:TestClient, owner_user_token_headers:dict[str,str],test_user_project: Project):
+def test_update_project_info(
+        db:Session,
+        client:TestClient,
+        owner_user_token_headers:dict[str,str],
+        test_user_project: Project):
+
     new_info={"name":random_lower_string(),
         "description":random_lower_string()
     }
 
-    r =client.put(f"{settings.API_HOST}/project/{test_user_project.project_id}/info", headers=owner_user_token_headers, json=new_info)
+    r =client.put(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
+        headers=owner_user_token_headers,
+        json=new_info
+    )
     project=ProjectPublicInfo.model_validate(r.json())
     db.refresh(test_user_project)
 
@@ -165,11 +198,18 @@ def test_update_project_info(db:Session,client:TestClient, owner_user_token_head
 
 
 
-def test_update_project_info_with_no_info(db:Session,client: TestClient, owner_user_token_headers:dict[str,str], test_user_project: Project):
+def test_update_project_info_with_no_info(
+        db:Session,client: TestClient,
+        owner_user_token_headers:dict[str,str],
+        test_user_project: Project):
+
     new_info = {}
 
-    r = client.put(f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
-                   headers=owner_user_token_headers, json=new_info)
+    r = client.put(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
+            headers=owner_user_token_headers,
+            json=new_info
+    )
 
     project = ProjectPublicInfo.model_validate(r.json())
     db.refresh(test_user_project)
@@ -190,7 +230,11 @@ def test_upload_new_docs_for_project(
             "backend.s3_utils.upload_s3_file_object",
             side_effect=lambda *args, **kwargs: random_lower_string()
     ) as mock_upload:
-       r =client.post(f"{settings.API_HOST}/project/{test_user_project.project_id}/documents", headers=owner_user_token_headers, files=files_to_upload)
+       r =client.post(
+           f"{settings.API_HOST}/project/{test_user_project.project_id}/documents",
+           headers=owner_user_token_headers,
+           files=files_to_upload
+       )
 
     project=ProjectPublic.model_validate(r.json())
     docs_from_r=project.documents
@@ -214,14 +258,17 @@ def test_get_project_docs(
         client: TestClient,
         owner_user_token_headers:dict[str,str],
         test_user_project: Project,
-                          ):
-        docs=create_random_docs_for_project(db,test_user_project,None,5)
+        ):
 
+        docs=create_random_docs_for_project(db,test_user_project,None,5)
         expected_filenames={
             doc.filename for doc in docs
         }
 
-        r =client.get(f"{settings.API_HOST}/project/{test_user_project.project_id}/documents", headers=owner_user_token_headers)
+        r =client.get(
+            f"{settings.API_HOST}/project/{test_user_project.project_id}/documents",
+            headers=owner_user_token_headers
+        )
 
         returned_docs=DocumentsPublic.model_validate(r.json()).documents
 
@@ -240,7 +287,9 @@ def test_delete_project_as_project_member(
     crud_test_project: Project,
 ) -> None:
 
-    test_user=crud.get_user_by_email(db_session=db,email=settings.EMAIL_TEST_USER)
+    test_user=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     crud.create_project_member(
         db_session=db,
         project_id=crud_test_project.project_id,
@@ -282,9 +331,11 @@ def test_invite_user_as_participant(
     test_user_project: Project,
      ):
 
-    r= client.post(f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-                   headers=owner_user_token_headers,
-                   params={"email": crud_test_user.email})
+    r= client.post(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
+            headers=owner_user_token_headers,
+            params={"email": crud_test_user.email}
+    )
 
     assert r.status_code == 201
     assert r.json()["message"]==f"User {crud_test_user.username} was successfully invited to the project: {test_user_project.name}."
@@ -296,9 +347,11 @@ def test_invite_non_existent_user_error(
 
 ):
     email=random_email()
-    r= client.post(f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-                   headers=owner_user_token_headers,
-                   params={"email": email})
+    r= client.post(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
+            headers=owner_user_token_headers,
+            params={"email": email}
+    )
     assert r.status_code == 404
     assert r.json()["detail"]=="User with provided email does not exist."
 
@@ -309,9 +362,11 @@ def test_invite_same_owner_error(
 
 ):
     email=settings.EMAIL_TEST_USER
-    r = client.post(f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-                    headers=owner_user_token_headers,
-                    params={"email": email})
+    r = client.post(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
+            headers=owner_user_token_headers,
+            params={"email": email}
+    )
     assert r.status_code == 400
     assert r.json()["detail"]=="You can't invite yourself to a project."
 
@@ -329,9 +384,11 @@ def test_invite_user_already_member_error(
         member_type=ProjectAccess.participant,
     )
 
-    r = client.post(f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-                    headers=owner_user_token_headers,
-                    params={"email":crud_test_user.email})
+    r = client.post(
+        f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
+            headers=owner_user_token_headers,
+            params={"email":crud_test_user.email}
+    )
 
     assert r.status_code == 409
     assert r.json()["detail"]==f"User with provided email is already member of this project: {test_user_project.name}."
@@ -364,7 +421,6 @@ def test_share_project_to_self(
         params={"email": settings.EMAIL_TEST_USER},
         headers=owner_user_token_headers,
     )
-
     assert r.status_code == 400
     assert r.json()["detail"] == (
         "You can't share a project with yourself."
@@ -384,7 +440,6 @@ def test_share_project_existing_member(
         user_id=crud_test_user.user_id,
         member_type=ProjectAccess.participant,
     )
-
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/share",
         params={"email": crud_test_user.email},
@@ -451,7 +506,9 @@ def test_validate_invitation_project_success(
     owner_user_auth_data: dict[str, str],
     crud_test_project: Project,
 ):
-    test_user=crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
+    test_user=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     payload = {
         "user_invited_id": str(test_user.user_id),
         "project_id": str(crud_test_project.project_id),
@@ -490,7 +547,10 @@ def test_validate_invitation_project_non_existent_user_invited_error(
         "user_invited_id": str(fake_id),
         "project_id": str(crud_test_project.project_id),
     }
-    token = generate_email_token(payload, settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    token = generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
     data = {"token": token,
             "email":random_email() ,
             "password": random_lower_string(), }
@@ -506,12 +566,17 @@ def test_validate_invitation_project_non_existent_project_error(
 ):
 
     fake_id = uuid.uuid4()
-    test_user=crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
+    test_user=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     payload = {
         "user_invited_id": str(test_user.user_id),
         "project_id": str(fake_id),
     }
-    token = generate_email_token(payload, settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    token = generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
     data = {"token": token,
             "email": test_user.email,
             "password": owner_user_auth_data["password"],}
@@ -530,13 +595,18 @@ def test_validate_invitation_project_current_user_login_error(
     fake_password=random_lower_string()
     fake_email=random_email()
 
-    test_user=crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
+    test_user=crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     payload = {
         "user_invited_id": str(test_user.user_id),
         "project_id": str(crud_test_project.project_id),
     }
 
-    token=generate_email_token(payload, settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    token=generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
     data = {"token": token,
             "email": fake_email,
             "password": fake_password}
@@ -554,12 +624,17 @@ def test_validate_invitation_project_different_auth_user_from_invited_error(
     crud_test_user: User,
     crud_test_project: Project,
 ):
-    test_user = crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
+    test_user = crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
     payload = {
         "user_invited_id": str(test_user.user_id),
         "project_id": str(crud_test_project.project_id),
     }
-    token=generate_email_token(payload, settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    token=generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
     data = {"token": token,
             "email": crud_test_user.email,
             "password": user_create.password}
@@ -573,21 +648,29 @@ def test_validate_invitation_project_already_member_error(
         owner_user_auth_data: dict[str, str],
         crud_test_project: Project,
 ):
-    test_user = crud.get_user_by_email(db_session=db, email=settings.EMAIL_TEST_USER)
+    test_user = crud.get_user_by_email(
+        db_session=db,
+        email=settings.EMAIL_TEST_USER)
+
     payload = {
         "user_invited_id": str(test_user.user_id),
         "project_id": str(crud_test_project.project_id),
     }
-    token = generate_email_token(payload, settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    token = generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
 
     data = {"token": token,
             "email": test_user.email,
             "password": owner_user_auth_data["password"],
             }
-    crud.create_project_member(db_session=db,
-                               project_id=crud_test_project.project_id,
-                               user_id=test_user.user_id,
-                               member_type=ProjectAccess.participant)
+    crud.create_project_member(
+        db_session=db,
+        project_id=crud_test_project.project_id,
+        user_id=test_user.user_id,
+        member_type=ProjectAccess.participant
+        )
     r=client.post(f"{settings.API_HOST}/join-project",data=data)
     assert r.status_code == 409
     assert r.json()["detail"] == "The user is already a participant of the project."

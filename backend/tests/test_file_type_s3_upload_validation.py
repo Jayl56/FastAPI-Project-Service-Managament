@@ -3,7 +3,7 @@ from io import BytesIO
 import pytest
 from fastapi import UploadFile,HTTPException
 
-from backend.s3_utils import validate_document
+from backend.utils.s3_utils import validate_document
 
 
 @pytest.mark.asyncio

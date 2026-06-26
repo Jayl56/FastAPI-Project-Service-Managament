@@ -34,7 +34,11 @@ def test_register_user(client: TestClient,db:Session)->None:
     verified=verify_password(password,user_from_email.hash_password)
     assert verified
 
-def test_register_user_already_exists_error(client: TestClient,crud_test_user:User,user_create:UserCreate)->None:
+def test_register_user_already_exists_error(
+        client: TestClient,
+        crud_test_user:User,
+        user_create:UserCreate
+)->None:
     password=user_create.password
     username=user_create.username
     email=user_create.email
@@ -49,7 +53,10 @@ def test_register_user_already_exists_error(client: TestClient,crud_test_user:Us
     assert r.status_code==400
     assert r.json()["detail"]=="User with this email already exists."
 
-def test_register_user_wrong_input_passwords_error(client: TestClient,user_create:UserCreate)->None:
+def test_register_user_wrong_input_passwords_error(
+        client: TestClient,
+        user_create:UserCreate
+)->None:
         password = user_create.password
         username = user_create.username
         email = user_create.email
@@ -64,24 +71,43 @@ def test_register_user_wrong_input_passwords_error(client: TestClient,user_creat
         assert r.status_code == 400
         assert r.json()["detail"] == "Passwords don't match."
 
-def test_update_me (client:TestClient,owner_user_token_headers:dict[str,str],db:Session)->None:
+def test_update_me (
+        client:TestClient,
+        owner_user_token_headers:dict[str,str],
+        db:Session
+)->None:
     data={"username":"Updated_username",
           "email": random_email(),
     }
-    r=client.patch(f"{settings.API_HOST}/users/me", headers=owner_user_token_headers, json=data)
+    r=client.patch(
+        f"{settings.API_HOST}/users/me",
+        headers=owner_user_token_headers,
+        json=data
+    )
     assert r.status_code == 200
     user_updated_r= PublicUser.model_validate(r.json())
     assert user_updated_r.username==data["username"]
     assert user_updated_r.user_id
 
-    user_updated=crud.get_user_by_email(db_session=db,email=data["email"])
+    user_updated=crud.get_user_by_email(
+        db_session=db,
+        email=data["email"]
+    )
     assert user_updated
     assert user_updated.username==data["username"]
     assert user_updated.email==data["email"]
 
-def test_update_me_with_email_already_registered_error(client:TestClient,owner_user_token_headers:dict[str,str],crud_test_user:User,db:Session)->None:
+def test_update_me_with_email_already_registered_error(
+        client:TestClient,
+        owner_user_token_headers:dict[str,str],
+        crud_test_user:User,db:Session
+)->None:
     data={"email":crud_test_user.email}
-    r = client.patch(f"{settings.API_HOST}/users/me", headers=owner_user_token_headers, json=data)
+    r = client.patch(
+        f"{settings.API_HOST}/users/me",
+        headers=owner_user_token_headers,
+        json=data
+    )
     assert r.status_code==409
     assert r.json()["detail"]=="Email already registered."
 
@@ -89,29 +115,56 @@ def test_update_me_requires_authentication(client:TestClient):
     response = client.patch(f"{settings.API_HOST}/users/me")
     assert response.status_code == 401
 
-def test_update_password_me(client:TestClient,owner_user_auth_data:dict[str,str],db:Session)->None:
+def test_update_password_me(
+        client:TestClient,
+        owner_user_auth_data:dict[str,str],
+        db:Session
+)->None:
     data={"current_password":owner_user_auth_data["password"],
           "new_password":random_lower_string()}
-    r=client.patch(f"{settings.API_HOST}/users/me/password", headers=owner_user_auth_data["headers"], json=data)
-    updated_user = crud.get_user_by_email(db_session=db, email=owner_user_auth_data["email"])
-    verified=verify_password(data["new_password"],updated_user.hash_password)
-
+    r=client.patch(
+        f"{settings.API_HOST}/users/me/password",
+        headers=owner_user_auth_data["headers"],
+        json=data
+    )
+    updated_user = crud.get_user_by_email(
+        db_session=db,
+        email=owner_user_auth_data["email"]
+    )
+    verified=verify_password(
+        data["new_password"],
+        updated_user.hash_password
+    )
     assert r.status_code == 200
     assert updated_user
     assert verified
     assert r.json()["message"]=="Password was successfully updated."
 
-def test_update_password_me_wrong_password(client:TestClient,owner_user_auth_data:dict[str,str])->None:
+def test_update_password_me_wrong_password(
+        client:TestClient,
+        owner_user_auth_data:dict[str,str]
+)->None:
     data={"current_password":"Wrong Password",
           "new_password":random_lower_string()}
-    r = client.patch(f"{settings.API_HOST}/users/me/password", headers=owner_user_auth_data["headers"], json=data)
+    r = client.patch(
+        f"{settings.API_HOST}/users/me/password",
+        headers=owner_user_auth_data["headers"],
+        json=data
+    )
     assert r.status_code == 400
     assert r.json()["detail"]=="Incorrect password."
 
-def test_update_password_me_same_passwords_error(client:TestClient,owner_user_auth_data:dict[str,str])->None:
+def test_update_password_me_same_passwords_error(
+        client:TestClient,
+        owner_user_auth_data:dict[str,str]
+)->None:
     data={"current_password":owner_user_auth_data["password"],
           "new_password":owner_user_auth_data["password"]}
-    r = client.patch(f"{settings.API_HOST}/users/me/password", headers=owner_user_auth_data["headers"], json=data)
+    r = client.patch(
+        f"{settings.API_HOST}/users/me/password",
+        headers=owner_user_auth_data["headers"],
+        json=data
+    )
     assert r.status_code == 400
     assert r.json()["detail"]=="New password cannot be the same as current one."
 
@@ -123,8 +176,16 @@ def test_delete_me_requires_authentication(client:TestClient)->None:
     r = client.delete(f"{settings.API_HOST}/users/me")
     assert r.status_code == 401
 
-def test_delete_me_as_no_member(client:TestClient,crud_test_user:User,user_create:UserCreate)->None:
-    headers=user_authentication_headers(client=client,email=crud_test_user.email,password=user_create.password)
+def test_delete_me_as_no_member(
+        client:TestClient,
+        crud_test_user:User,
+        user_create:UserCreate
+)->None:
+    headers=user_authentication_headers(
+        client=client,
+        email=crud_test_user.email,
+        password=user_create.password
+    )
     r=client.delete(f"{settings.API_HOST}/users/me", headers=headers)
     assert r.status_code == 204
 

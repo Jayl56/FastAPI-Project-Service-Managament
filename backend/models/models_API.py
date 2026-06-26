@@ -11,49 +11,82 @@ class ProjectAccess(Enum):
     owner="OWNER"
 
 class BaseUser(SQLModel):
-    username: str|None =Field(max_length=255,min_length=1,default=None)
-    email: EmailStr = Field(unique=True, max_length=255)
-
+    username: str|None =Field(
+        max_length=255,
+        min_length=1,
+        default=None)
+    email: EmailStr = Field(
+        max_length=255)
 
 class UserCreate(BaseUser):
-    password: str=Field(min_length=8,max_length=128)
+    password: str=Field(
+        min_length=8,
+        max_length=128)
 
 class UserNewRegister(SQLModel):
-    username: str|None =Field(min_length=1,max_length=128,default=None)
-    email: EmailStr = Field(max_length=255)
-    password: str=Field(min_length=8,max_length=128)
-    repeat_password: str = Field(min_length=8,max_length=128)
+    username: str|None =Field(
+        min_length=1,
+        max_length=128,
+        default=None)
+    email: EmailStr = Field(
+        max_length=255)
+    password: str=Field(
+        min_length=8,
+        max_length=128)
+    repeat_password: str = Field(
+        min_length=8,
+        max_length=128)
 
 class UserUpdates(SQLModel):
-    username: str|None =Field(max_length=255,min_length=1,default=None)
-    email: EmailStr = Field(max_length=255, default=None)
+    username: str|None =Field(
+        max_length=255,
+        min_length=1,
+        default=None)
+    email: EmailStr|None = Field(
+        max_length=255,
+        default=None)
 
 #Model with password received via API for recovery
 class UserUpdatesAPI(SQLModel):
-    password: str|None=Field(min_length=8,max_length=128, default=None)
+    password: str|None=Field(
+        min_length=8,
+        max_length=128,
+        default=None)
 
 class PublicUser(SQLModel):
-    username: str|None =Field(min_length=1,max_length=128,default=None)
+    username: str =Field(
+        min_length=1,
+        max_length=128)
     user_id: uuid.UUID
 
 class UpdatePassword(SQLModel):
-    current_password: str =Field(min_length=8,max_length=128)
-    new_password: str =Field(min_length=8,max_length=128)
+    current_password: str =Field(
+        min_length=8,
+        max_length=128)
+    new_password: str =Field(
+        min_length=8,
+        max_length=128)
 
 class BaseProject(SQLModel):
-    name: str =Field(min_length=1,max_length=255)
+    name: str =Field(
+        min_length=1,
+        max_length=255)
     description: str | None = None
 
 class CreateProject(BaseProject):
     pass
 
 class UpdateProject(BaseProject):
-    name: str|None =Field(min_length=1,max_length=255,default=None)
+    name: str|None =Field(
+        min_length=1,
+        max_length=255,
+        default=None)
 
 class BaseDocument(SQLModel):
-    filename: str=Field(nullable=False,max_length=255)
-    s3_key: str=Field(max_length=500,unique=True)
-
+    filename: str=Field(
+        nullable=False,
+        max_length=255)
+    s3_key: str=Field(max_length=500)
 
 class DocumentPublicByProject(SQLModel):
     filename: str
@@ -63,7 +96,6 @@ class DocumentPublicByProject(SQLModel):
 class ProjectPublicInfo(BaseProject):
     project_id: uuid.UUID
     updated_at: datetime
-
 
 class ProjectPublic(ProjectPublicInfo):
     documents: List[DocumentPublicByProject]=[]
@@ -82,7 +114,7 @@ class DocumentsPublic(SQLModel):
     documents: List[DocumentPublicByProject]
 
 class UploadDocuments(SQLModel):
-      documents:List[BaseDocument]=[]
+    documents:List[BaseDocument]=[]
 
 class Message(SQLModel):
     message: str
