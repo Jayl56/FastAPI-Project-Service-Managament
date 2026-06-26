@@ -227,7 +227,7 @@ def test_upload_new_docs_for_project(
     files_to_upload:list[UploadFile]):
 
     with patch(
-            "backend.s3_utils.upload_s3_file_object",
+            "backend.API.projects.s3_utils.upload_s3_file_object",
             side_effect=lambda *args, **kwargs: random_lower_string()
     ) as mock_upload:
        r =client.post(

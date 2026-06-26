@@ -45,20 +45,22 @@ verify_email_token
 import backend.utils.s3_utils as s3_utils
 
 
-
-
 router=APIRouter(tags=["projects"])
 
 @router.post("/projects",
              response_model=ProjectPublicInfo,
              status_code=status.HTTP_201_CREATED)
-def generate_project(*,session:SessionDep,
-                     current_user:CurrentUser,
-                     project_in:CreateProject)->ProjectPublicInfo:
+def generate_project(
+        *,session:SessionDep,
+        current_user:CurrentUser,
+        project_in:CreateProject
+        )->ProjectPublicInfo:
+
     new_project=crud_db.create_project(
         db_session=session,
         new_project=project_in,
-        owner_id=current_user.user_id)
+        owner_id=current_user.user_id
+    )
     return new_project
 
 @router.get(
@@ -66,8 +68,7 @@ def generate_project(*,session:SessionDep,
     status_code=status.HTTP_200_OK,
 )
 def get_projects(
-    *,
-    session: SessionDep,
+    *,session: SessionDep,
     current_user: CurrentUser,
     role: Annotated[
         ProjectAccess | None,
@@ -75,7 +76,7 @@ def get_projects(
             description="Filter projects by user role",
         ),
     ] = None,
-):
+)->ProjectsPublic:
     projects = crud_db.get_available_projects_user_role(
         db_session=session,
         user_id=current_user.user_id,
@@ -101,22 +102,29 @@ def get_project_info(*,project:ActiveProject)->ProjectPublicInfo:
             status_code=status.HTTP_200_OK,
             response_model=ProjectPublicInfo,
             dependencies=[Depends(is_member)])
-def update_project_info(*,session:SessionDep,project:ActiveProject,project_in:UpdateProject)->ProjectPublicInfo:
+def update_project_info(
+        *,session:SessionDep,
+        project:ActiveProject,
+        project_in:UpdateProject
+        )->ProjectPublicInfo:
+
     updated_project=crud_db.update_project_details(
         db_session=session,
         original_project=project,
-        info_to_update=project_in)
+        info_to_update=project_in
+    )
     return updated_project
 
 
 @router.post("/project/{project_id}/documents",
              status_code=status.HTTP_201_CREATED,
              response_model=ProjectPublic)
-def upload_new_docs_for_project(*,session:SessionDep,
-                                project:ActiveProject,
-                                user:ActiveMember,
-                                files: Annotated[list[UploadFile], File(...)]
-                                )->ProjectPublic:
+def upload_new_docs_for_project(
+        *,session:SessionDep,
+        project:ActiveProject,
+        user:ActiveMember,
+        files: Annotated[list[UploadFile], File(...)]
+        )->ProjectPublic:
     docs=[]
     for file in files:
        s3_key=s3_utils.upload_s3_file_object(
@@ -129,10 +137,12 @@ def upload_new_docs_for_project(*,session:SessionDep,
 
     upload_docs=UploadDocuments(documents=docs)
 
-    crud_db.upload_documents_for_project(db_session=session,
-                                         user_id=user.user_id,
-                                         project_id=project.project_id,
-                                         upload_docs=upload_docs)
+    crud_db.upload_documents_for_project(
+        db_session=session,
+        user_id=user.user_id,
+        project_id=project.project_id,
+        upload_docs=upload_docs
+    )
     return project
 
 
@@ -153,18 +163,28 @@ def delete_project(*,session:SessionDep,project:ActiveProject)->None:
 
 @router.post("/project/{project_id}/invite",
              status_code=status.HTTP_201_CREATED)
-def invite_user_as_participant(*,owner:ProjectOwner,email:EmailStr=Query(...),session:SessionDep,project:ActiveProject)->Message:
+def invite_user_as_participant(
+        *,owner:ProjectOwner,
+        email:EmailStr=Query(...),
+        session:SessionDep,
+        project:ActiveProject
+        )->Message:
 
     user_email=crud_db.get_user_by_email(
         db_session=session,
-        email=email)
+        email=email
+    )
 
     if not user_email:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User with provided email does not exist.")
+            detail="User with provided email does not exist."
+        )
 
-    owner_email= crud_db.get_user_by_id(db_session=session, user_id=owner.user_id).email
+    owner_email= crud_db.get_user_by_id(
+        db_session=session,
+        user_id=owner.user_id
+    ).email
     if email==owner_email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -177,13 +197,17 @@ def invite_user_as_participant(*,owner:ProjectOwner,email:EmailStr=Query(...),se
         user_id=user_email.user_id
     )
     if member:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail=f"User with provided email is already member of this project: {project.name}.")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"User with provided email is already member of this project: {project.name}."
+        )
 
-    crud_db.create_project_member(db_session=session,
-                                  project_id=project.project_id,
-                                  user_id=user_email.user_id,
-                                  member_type=ProjectAccess.participant)
+    crud_db.create_project_member(
+        db_session=session,
+        project_id=project.project_id,
+        user_id=user_email.user_id,
+        member_type=ProjectAccess.participant
+    )
 
     return Message(message=f"User {user_email.username} was successfully invited to the project: {project.name}.")
 
@@ -204,7 +228,11 @@ def share_project_by_email(
             detail="User with provided email to share does not exist."
         )
 
-    owner_user = crud_db.get_user_by_id(db_session=session, user_id=owner.user_id)
+    owner_user = crud_db.get_user_by_id(
+        db_session=session,
+        user_id=owner.user_id
+    )
+
     owner_email= owner_user.email
     if email==owner_email:
         raise HTTPException(
@@ -212,16 +240,26 @@ def share_project_by_email(
             detail="You can't share a project with yourself."
         )
 
-    member=crud_db.authenticate_project_member(db_session=session, project_id=project.project_id,user_id=user_invited.user_id)
+    member=crud_db.authenticate_project_member(
+        db_session=session,
+        project_id=project.project_id,
+        user_id=user_invited.user_id
+    )
     if member:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"User with provided email is already member of this project: {project.name}.")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"User with provided email is already member of this project: {project.name}."
+        )
 
     payload = {
         "user_invited_id": str(user_invited.user_id),
         "project_id": str(project.project_id),
     }
 
-    invitation_token=generate_email_token(payload,settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS)
+    invitation_token=generate_email_token(
+        payload,
+        settings.EMAIL_INVITATION_TOKEN_EXPIRE_HOURS
+    )
     email_info=generate_invitation_email(
         owner_user.username,
         user_invited.username,
@@ -244,9 +282,13 @@ def get_join_project_form(request:Request,session:SessionDep,token:str):
     if not payload:
         raise HTTPException(
             status_code=400,
-            detail="Invitation token is invalid.")
+            detail="Invitation token is invalid."
+        )
 
-    user_to_join= crud_db.get_user_by_id(db_session=session, user_id=uuid.UUID(payload["user_invited_id"]))
+    user_to_join= crud_db.get_user_by_id(
+        db_session=session,
+        user_id=uuid.UUID(payload["user_invited_id"])
+    )
 
     owner_user=crud_db.get_project_owner(
         db_session=session,
@@ -283,50 +325,67 @@ def validate_invitation_project(
             status_code=401,
             detail="Invitation token is invalid.")
 
-    user_invited= crud_db.get_user_by_id(db_session=session, user_id=uuid.UUID(payload["user_invited_id"]))
+    user_invited= crud_db.get_user_by_id(
+        db_session=session,
+        user_id=uuid.UUID(payload["user_invited_id"])
+    )
 
     if not user_invited:
         raise HTTPException(
             status_code=401,
-            detail="Invitation token is invalid.")
+            detail="Invitation token is invalid."
+        )
 
     current_user=crud_db.authenticate_user(
         db_session=session,
         email=email,
-        password=password)
+        password=password
+    )
 
     if not current_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password.")
+            detail="Incorrect email or password."
+        )
 
     if current_user.user_id != user_invited.user_id:
         raise HTTPException(
             status_code=403,
-            detail="This invitation is being validated by a different user.")
+            detail="This invitation is being validated by a different user."
+        )
 
     actual_project= crud_db.get_project_by_id(
         db_session=session,
-        project_id=uuid.UUID(payload["project_id"]))
+        project_id=uuid.UUID(payload["project_id"])
+    )
 
     if not actual_project:
         raise HTTPException(status_code=404,
-                            detail="Project does not exist.")
+                            detail="Project does not exist."
+                            )
 
     member=crud_db.authenticate_project_member(
         db_session=session,
         project_id=uuid.UUID(payload["project_id"]),
-        user_id=user_invited.user_id)
+        user_id=user_invited.user_id
+    )
 
     if member:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="The user is already a participant of the project.")
+            detail="The user is already a participant of the project."
+        )
 
-    crud_db.create_project_member(db_session=session, project_id=uuid.UUID(payload["project_id"]),
-                                  user_id=current_user.user_id, member_type=ProjectAccess.participant)
+    crud_db.create_project_member(
+        db_session=session,
+        project_id=uuid.UUID(payload["project_id"]),
+        user_id=current_user.user_id,
+        member_type=ProjectAccess.participant
+    )
 
-    return Message(message=f"Welcome {user_invited.username}! You have successfully joined to this project as a participant.")
+    return Message(
+        message=f"Welcome {user_invited.username}! You have successfully joined to"
+                f" this project as a participant.")
 
 
 

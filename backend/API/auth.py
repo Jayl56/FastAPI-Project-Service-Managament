@@ -27,15 +27,26 @@ router = APIRouter(
 )
 
 @router.post("/login/access-token",status_code=200)
-def get_login_access_token(session:SessionDep,
-                           form_data:Annotated[OAuth2PasswordRequestForm,Depends()])->Token:
+def get_login_access_token(
+        session:SessionDep,
+        form_data:Annotated[OAuth2PasswordRequestForm,Depends()]
+)->Token:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    user=crud_db.authenticate_user(db_session=session,email=form_data.username,password=form_data.password)
+    user=crud_db.authenticate_user(
+        db_session=session,
+        email=form_data.username,
+        password=form_data.password
+    )
     if not user:
-        raise HTTPException(status_code=400,detail="Incorrect email or password")
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect email or password"
+        )
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     return Token(access_token=create_access_token(user.user_id,access_token_expires))
 
 @router.post("/password-recovery/{email}",status_code=200)
@@ -44,8 +55,14 @@ def recover_password(email:EmailStr,session:SessionDep)->Message:
     user=crud_db.get_user_by_email(db_session=session,email=email)
     if user:
         payload={"sub":email}
-        password_reset_token=generate_email_token(payload,settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
-        email_info=generate_reset_password_email(user.username,password_reset_token)
+        password_reset_token=generate_email_token(
+            payload,
+            settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS
+        )
+        email_info=generate_reset_password_email(
+            user.username,
+            password_reset_token
+        )
         send_email(
             email_receptor=user.email,
             subject=email_info.subject,
@@ -77,19 +94,35 @@ def validate_reset_password(
         confirm_password:str = Form(...),
 ):
     if new_password != confirm_password:
-        raise HTTPException(status_code=400,detail="Passwords do not match.")
+        raise HTTPException(
+            status_code=400,
+            detail="Passwords do not match."
+        )
 
     payload= verify_email_token(token)
     if not payload:
-        raise HTTPException(status_code=401,detail="Invalid token")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
 
     email_recovered=payload["sub"]
-    user=crud_db.get_user_by_email(db_session=session,email=email_recovered)
+    user=crud_db.get_user_by_email(
+        db_session=session,
+        email=email_recovered
+    )
     if not user:
-        raise HTTPException(status_code=401,detail="Invalid token") #Do not reveal user does not exist. Same error as invalid token is issued#
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        ) #Do not reveal user does not exist. Same error as invalid token is issued#
 
     user_in_update=UserUpdatesAPI(password=new_password)
-    crud_db.update_user_password(db_session=session,user=user,user_new_info=user_in_update)
+    crud_db.update_user_password(
+        db_session=session,
+        user=user,
+        user_new_info=user_in_update
+    )
     return Message(message=f"{user.username}, your password was successfully changed.")
 
 

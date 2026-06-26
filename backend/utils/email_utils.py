@@ -25,7 +25,7 @@ def render_templates_emails(
         context: dict[str, Any],)->str:
 
     template_route=(
-        Path(__file__).parent / "templates" / "email_templates"/email_template_name).read_text()
+        Path(__file__).parent.parent/ "templates" / "email_templates"/email_template_name).read_text()
     html_content=Template(template_route).render(**context)
     return html_content
 

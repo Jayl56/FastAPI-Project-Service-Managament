@@ -19,14 +19,18 @@ def test_download_document(
         "https://fake-bucket.s3.amazonaws.com/file.pdf"
     )
     with patch(
-            "backend.utils.s3_utils.get_s3_doc_url_download",
+            "backend.API.documents.s3_utils.get_s3_doc_url_download",
             return_value=expected_url,
-    ):
+    ) as mock_download:
       r = client.get(
         f"{settings.API_HOST}/document/{doc_for_test_user_project.doc_id}",
         headers=owner_user_token_headers,
          )
 
+    mock_download.assert_called_once_with(
+        settings.S3_BUCKET_NAME,
+        doc_for_test_user_project.s3_key,
+    )
     document=DocumentDownloadResponse.model_validate(r.json())
 
     assert r.status_code == 200
@@ -40,7 +44,7 @@ def test_update_document(
     doc_for_test_user_project: Document,
 ):
     with patch (
-        "backend.utils.s3_utils.update_s3_file_object",
+        "backend.API.documents.s3_utils.update_s3_file_object",
     ) as mock_update:
 
        r = client.put(
@@ -57,9 +61,18 @@ def test_update_document(
     content = r.json()
     document = DocumentPublic.model_validate(content)
     db.refresh(doc_for_test_user_project)
+    expected_s3_key = doc_for_test_user_project.s3_key
+    args, kwargs = mock_update.call_args
 
     assert r.status_code == 200
     mock_update.assert_called_once()
+    assert args[0] == "s3buckettest5160"
+
+    uploaded_file = args[1]
+
+    assert uploaded_file.filename == "nuevo.pdf"
+    assert uploaded_file.content_type == "application/pdf"
+    assert args[2] == expected_s3_key
     assert document.filename == "nuevo.pdf"
     assert (
         doc_for_test_user_project.filename
@@ -74,9 +87,9 @@ def test_delete_document(
     doc_for_test_user_project: Document,
 ):
     doc_id = doc_for_test_user_project.doc_id
-
+    s3_key=doc_for_test_user_project.s3_key
     with patch(
-            "backend.utils.s3_utils.delete_s3_file_object"
+            "backend.API.documents.s3_utils.delete_s3_file_object"
     ) as mock_delete:
       r = client.delete(
         f"{settings.API_HOST}/document/{doc_id}",
@@ -89,7 +102,10 @@ def test_delete_document(
         document_id=doc_id,
     )
     assert r.status_code == 204
-    mock_delete.assert_called_once()
+    mock_delete.assert_called_once_with(
+        settings.S3_BUCKET_NAME,
+        s3_key,
+    )
     assert deleted_doc is None
 
 
