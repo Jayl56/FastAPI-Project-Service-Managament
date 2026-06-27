@@ -73,7 +73,7 @@ def test_register_user_wrong_input_passwords_error(
 
 def test_update_me (
         client:TestClient,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         db:Session
 )->None:
     data={"username":"Updated_username",
@@ -81,7 +81,7 @@ def test_update_me (
     }
     r=client.patch(
         f"{settings.API_HOST}/users/me",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
         json=data
     )
     assert r.status_code == 200
@@ -99,13 +99,13 @@ def test_update_me (
 
 def test_update_me_with_email_already_registered_error(
         client:TestClient,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         crud_test_user:User,db:Session
 )->None:
     data={"email":crud_test_user.email}
     r = client.patch(
         f"{settings.API_HOST}/users/me",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
         json=data
     )
     assert r.status_code==409
@@ -117,19 +117,19 @@ def test_update_me_requires_authentication(client:TestClient):
 
 def test_update_password_me(
         client:TestClient,
-        owner_user_auth_data:dict[str,str],
+        test_user_auth_data,
         db:Session
 )->None:
-    data={"current_password":owner_user_auth_data["password"],
+    data={"current_password":test_user_auth_data["password"],
           "new_password":random_lower_string()}
     r=client.patch(
         f"{settings.API_HOST}/users/me/password",
-        headers=owner_user_auth_data["headers"],
+        headers=test_user_auth_data["headers"],
         json=data
     )
     updated_user = crud.get_user_by_email(
         db_session=db,
-        email=owner_user_auth_data["email"]
+        email=test_user_auth_data["email"]
     )
     verified=verify_password(
         data["new_password"],
@@ -142,13 +142,13 @@ def test_update_password_me(
 
 def test_update_password_me_wrong_password(
         client:TestClient,
-        owner_user_auth_data:dict[str,str]
+        test_user_auth_data
 )->None:
     data={"current_password":"Wrong Password",
           "new_password":random_lower_string()}
     r = client.patch(
         f"{settings.API_HOST}/users/me/password",
-        headers=owner_user_auth_data["headers"],
+        headers=test_user_auth_data["headers"],
         json=data
     )
     assert r.status_code == 400
@@ -156,13 +156,13 @@ def test_update_password_me_wrong_password(
 
 def test_update_password_me_same_passwords_error(
         client:TestClient,
-        owner_user_auth_data:dict[str,str]
+        test_user_auth_data
 )->None:
-    data={"current_password":owner_user_auth_data["password"],
-          "new_password":owner_user_auth_data["password"]}
+    data={"current_password":test_user_auth_data["password"],
+          "new_password":test_user_auth_data["password"]}
     r = client.patch(
         f"{settings.API_HOST}/users/me/password",
-        headers=owner_user_auth_data["headers"],
+        headers=test_user_auth_data["headers"],
         json=data
     )
     assert r.status_code == 400
@@ -208,8 +208,8 @@ def test_delete_member_removes_project_memberships(db:Session,client:TestClient,
     assert membership is None
 
 
-def test_delete_me_invalid_for_owner(client:TestClient,owner_user_auth_data:dict[str,str],test_user_project:Project)->None:
-    r=client.delete(f"{settings.API_HOST}/users/me", headers=owner_user_auth_data["headers"])
+def test_delete_me_invalid_for_owner(client:TestClient, test_user_auth_data, test_user_project:Project)->None:
+    r=client.delete(f"{settings.API_HOST}/users/me", headers=test_user_auth_data["headers"])
     assert r.status_code == 409
     assert r.json()["detail"]=="User cannot be deleted because they own one or more projects."
 

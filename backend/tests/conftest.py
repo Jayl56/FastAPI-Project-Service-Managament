@@ -116,7 +116,7 @@ def client():
         yield c
 
 @pytest.fixture
-def owner_user_token_headers(
+def test_user_token_headers(
         client:TestClient,
         db:Session
 )->dict[str, str]:
@@ -127,7 +127,7 @@ def owner_user_token_headers(
     )
 
 @pytest.fixture
-def owner_user_auth_data(
+def test_user_auth_data(
     client: TestClient,
     db: Session,
 ) -> dict[str, str]:

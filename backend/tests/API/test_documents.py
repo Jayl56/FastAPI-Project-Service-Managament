@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 def test_download_document(
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     doc_for_test_user_project: Document,
 ):
     expected_url = (
@@ -23,7 +23,7 @@ def test_download_document(
     ) as mock_download:
       r = client.get(
         f"{settings.API_HOST}/document/{doc_for_test_user_project.doc_id}",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
          )
 
     mock_download.assert_called_once_with(
@@ -39,7 +39,7 @@ def test_download_document(
 def test_update_document(
     db: Session,
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     doc_for_test_user_project: Document,
 ):
     with patch (
@@ -55,7 +55,7 @@ def test_update_document(
                    "application/pdf"
                )
            },
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
         )
     content = r.json()
     document = DocumentPublic.model_validate(content)
@@ -82,7 +82,7 @@ def test_update_document(
 def test_delete_document(
     db: Session,
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     doc_for_test_user_project: Document,
 ):
     doc_id = doc_for_test_user_project.doc_id
@@ -92,7 +92,7 @@ def test_delete_document(
     ) as mock_delete:
       r = client.delete(
         f"{settings.API_HOST}/document/{doc_id}",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
        )
 
     db.expire_all()

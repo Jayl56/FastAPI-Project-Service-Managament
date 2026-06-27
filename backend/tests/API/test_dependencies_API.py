@@ -15,10 +15,10 @@ import uuid
 
 def test_get_current_user(
         db:Session,
-        owner_user_token_headers:dict[str,str]
+        test_user_token_headers
 )->None:
 
-    token = owner_user_token_headers["Authorization"].split(" ")[1]
+    token = test_user_token_headers["Authorization"].split(" ")[1]
     user =control.get_current_user(db,token)
     user_db=crud.get_user_by_email(
         db_session=db,

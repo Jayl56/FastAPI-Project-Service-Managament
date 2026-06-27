@@ -24,7 +24,7 @@ import pytest
 
 def test_generate_project(
         db: Session,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         client: TestClient
 ):
     data={"name":"New Project",
@@ -32,7 +32,7 @@ def test_generate_project(
 
     r=client.post(
         f"{settings.API_HOST}/projects",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
         json=data
     )
 
@@ -52,7 +52,7 @@ def test_generate_project(
 def test_get_projects_all_for_user(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project:Project,
     crud_test_project:Project,
     role:ProjectAccess,
@@ -71,7 +71,7 @@ def test_get_projects_all_for_user(
 
     response = client.get(
         f"{settings.API_HOST}/projects",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
 
     projects_info=ProjectsPublic.model_validate(response.json())
@@ -91,12 +91,12 @@ def test_get_projects_all_for_user(
 def test_get_projects_for_owner(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
 ):
     r=client.get(
         f"{settings.API_HOST}/projects/?role={ProjectAccess.owner.value}",
-            headers=owner_user_token_headers
+            headers=test_user_token_headers
     )
     project_info=ProjectsPublic.model_validate(r.json())
 
@@ -111,7 +111,7 @@ def test_get_projects_for_owner(
 def test_get_projects_for_role(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     crud_test_project: Project,
     role:ProjectAccess,
 ):
@@ -125,7 +125,7 @@ def test_get_projects_for_role(
         member_type=role)
     response =client.get(
         f"{settings.API_HOST}/projects/?role={role.value}",
-        headers=owner_user_token_headers
+        headers=test_user_token_headers
     )
     project_info = ProjectsPublic.model_validate(response.json())
 
@@ -136,13 +136,13 @@ def test_get_projects_for_role(
 def test_get_projects_with_document(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
 ):
     doc=create_random_docs_for_project(db,test_user_project)[0]
     r=client.get(
         f"{settings.API_HOST}/projects/",
-        headers=owner_user_token_headers
+        headers=test_user_token_headers
     )
     project_info = ProjectsPublic.model_validate(r.json())
     doc_from_r=project_info.projects[0].documents[0]
@@ -155,12 +155,12 @@ def test_get_projects_with_document(
 def test_get_project_info(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,):
 
     r = client.get(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
-        headers=owner_user_token_headers
+        headers=test_user_token_headers
     )
 
     project = ProjectPublicInfo.model_validate(r.json())
@@ -173,7 +173,7 @@ def test_get_project_info(
 def test_update_project_info_by_owner(
         db:Session,
         client:TestClient,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         test_user_project: Project):
 
     new_info={"name":random_lower_string(),
@@ -182,7 +182,7 @@ def test_update_project_info_by_owner(
 
     r =client.put(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
         json=new_info
     )
     project=ProjectPublicInfo.model_validate(r.json())
@@ -197,14 +197,14 @@ def test_update_project_info_by_owner(
 
 def test_update_project_info_with_no_info(
         db:Session,client: TestClient,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         test_user_project: Project):
 
     new_info = {}
 
     r = client.put(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/info",
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
             json=new_info
     )
 
@@ -219,7 +219,7 @@ def test_update_project_info_with_no_info(
 
 def test_upload_new_docs_for_project(
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
     files_to_upload:list[UploadFile]):
 
@@ -229,7 +229,7 @@ def test_upload_new_docs_for_project(
     ) as mock_upload:
        r =client.post(
            f"{settings.API_HOST}/project/{test_user_project.project_id}/documents",
-           headers=owner_user_token_headers,
+           headers=test_user_token_headers,
            files=files_to_upload
        )
 
@@ -253,7 +253,7 @@ def test_upload_new_docs_for_project(
 def test_get_project_docs(
         db:Session,
         client: TestClient,
-        owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
         test_user_project: Project,
         ):
 
@@ -264,7 +264,7 @@ def test_get_project_docs(
 
         r =client.get(
             f"{settings.API_HOST}/project/{test_user_project.project_id}/documents",
-            headers=owner_user_token_headers
+            headers=test_user_token_headers
         )
 
         returned_docs=DocumentsPublic.model_validate(r.json()).documents
@@ -277,10 +277,10 @@ def test_get_project_docs(
         assert len(returned_docs)==5
         assert expected_filenames==returned_filenames
 
-def test_delete_project_as_project_member(
+def test_delete_project_as_project_participant_error(
     db: Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     crud_test_project: Project,
 ) -> None:
 
@@ -296,22 +296,22 @@ def test_delete_project_as_project_member(
 
     r = client.delete(
         f"{settings.API_HOST}/project/{crud_test_project.project_id}",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
 
     assert r.status_code == 403
 
-def test_delete_project_as_owner(
+def test_delete_project_as_owner_success(
     db:Session,
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
 ) -> None:
 
     test_project_id=test_user_project.project_id
     r = client.delete(
         f"{settings.API_HOST}/project/{test_user_project.project_id}",
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
     db.expire_all()
     deleted_project=crud.get_project_by_id(
@@ -324,13 +324,13 @@ def test_delete_project_as_owner(
 def test_invite_user_as_participant(
     client: TestClient,
     crud_test_user: User,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
      ):
 
     r= client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
             params={"email": crud_test_user.email}
     )
 
@@ -339,14 +339,14 @@ def test_invite_user_as_participant(
 
 def test_invite_non_existent_user_error(
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
 
 ):
     email=random_email()
     r= client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
             params={"email": email}
     )
     assert r.status_code == 404
@@ -354,14 +354,14 @@ def test_invite_non_existent_user_error(
 
 def test_invite_same_owner_error(
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
 
 ):
     email=settings.EMAIL_TEST_USER
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
             params={"email": email}
     )
     assert r.status_code == 400
@@ -369,7 +369,7 @@ def test_invite_same_owner_error(
 
 def test_invite_user_already_member_error(
     client: TestClient,
-    owner_user_token_headers:dict[str,str],
+        test_user_token_headers,
     test_user_project: Project,
     crud_test_user: User,
     db:Session):
@@ -383,7 +383,7 @@ def test_invite_user_already_member_error(
 
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/invite",
-            headers=owner_user_token_headers,
+            headers=test_user_token_headers,
             params={"email":crud_test_user.email}
     )
 
@@ -393,13 +393,13 @@ def test_invite_user_already_member_error(
 
 def test_share_project_user_not_found(
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     test_user_project: Project,
 ):
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/share",
         params={"email": "ghost@test.com"},
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
 
     assert r.status_code == 404
@@ -410,13 +410,13 @@ def test_share_project_user_not_found(
 
 def test_share_project_to_self(
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     test_user_project:Project
 ):
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/share",
         params={"email": settings.EMAIL_TEST_USER},
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
     assert r.status_code == 400
     assert r.json()["detail"] == (
@@ -427,7 +427,7 @@ def test_share_project_to_self(
 def test_share_project_existing_member(
     db: Session,
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     crud_test_user: User,
     test_user_project: Project,
 ):
@@ -440,7 +440,7 @@ def test_share_project_existing_member(
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/share",
         params={"email": crud_test_user.email},
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
 
     assert r.status_code == 409
@@ -461,7 +461,7 @@ def test_share_project_success(
     mock_generate_email,
     mock_send_email,
     client: TestClient,
-    owner_user_token_headers: dict[str, str],
+        test_user_token_headers,
     crud_test_user: User,
     test_user_project: Project,
 ):
@@ -475,7 +475,7 @@ def test_share_project_success(
     r = client.post(
         f"{settings.API_HOST}/project/{test_user_project.project_id}/share",
         params={"email": crud_test_user.email},
-        headers=owner_user_token_headers,
+        headers=test_user_token_headers,
     )
 
     assert r.status_code == 201
@@ -500,7 +500,7 @@ def test_share_project_success(
 def test_validate_invitation_project_success(
     db: Session,
     client: TestClient,
-    owner_user_auth_data: dict[str, str],
+        test_user_auth_data,
     crud_test_project: Project,
 ):
     test_user=crud.get_user_by_email(
@@ -514,7 +514,7 @@ def test_validate_invitation_project_success(
 
     data={"token": token,
           "email": test_user.email,
-          "password": owner_user_auth_data["password"],
+          "password": test_user_auth_data["password"],
           }
 
     r = client.post(f"{settings.API_HOST}/join-project",data=data)
@@ -558,7 +558,7 @@ def test_validate_invitation_project_non_existent_user_invited_error(
 def test_validate_invitation_project_non_existent_project_error(
         db: Session,
         client: TestClient,
-        owner_user_auth_data: dict[str, str],
+        test_user_auth_data,
         crud_test_project: Project,
 ):
 
@@ -576,7 +576,7 @@ def test_validate_invitation_project_non_existent_project_error(
     )
     data = {"token": token,
             "email": test_user.email,
-            "password": owner_user_auth_data["password"],}
+            "password": test_user_auth_data["password"], }
     r=client.post(f"{settings.API_HOST}/join-project",data=data)
 
     assert r.status_code == 404
@@ -585,7 +585,7 @@ def test_validate_invitation_project_non_existent_project_error(
 def test_validate_invitation_project_current_user_login_error(
         db: Session,
         client: TestClient,
-        owner_user_auth_data:dict[str, str],
+        test_user_auth_data,
         crud_test_project: Project
 ):
 
@@ -616,7 +616,7 @@ def test_validate_invitation_project_current_user_login_error(
 def test_validate_invitation_project_different_auth_user_from_invited_error(
     db: Session,
     client: TestClient,
-    owner_user_auth_data: dict[str, str],
+        test_user_auth_data,
     user_create: UserCreate,
     crud_test_user: User,
     crud_test_project: Project,
@@ -642,7 +642,7 @@ def test_validate_invitation_project_different_auth_user_from_invited_error(
 def test_validate_invitation_project_already_member_error(
         db: Session,
         client: TestClient,
-        owner_user_auth_data: dict[str, str],
+        test_user_auth_data,
         crud_test_project: Project,
 ):
     test_user = crud.get_user_by_email(
@@ -660,7 +660,7 @@ def test_validate_invitation_project_already_member_error(
 
     data = {"token": token,
             "email": test_user.email,
-            "password": owner_user_auth_data["password"],
+            "password": test_user_auth_data["password"],
             }
     crud.create_project_member(
         db_session=db,
