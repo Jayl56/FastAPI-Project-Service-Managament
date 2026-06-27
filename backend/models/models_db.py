@@ -3,7 +3,7 @@ import uuid
 from typing import List,Optional
 from pydantic import EmailStr
 from backend.models.models_API import ProjectAccess
-from sqlalchemy import Text,Column,DateTime
+from sqlalchemy import Text,Column,DateTime,CheckConstraint
 from sqlmodel import (
 SQLModel,
 Field,
@@ -67,6 +67,9 @@ class Project (SQLModel,table=True):
 
 class Document(SQLModel,table=True):
     __tablename__ = "documents"
+    __table_args__ = (
+        CheckConstraint("file_size >= 0", name="ck_document_file_size_non_negative"),
+    )
     doc_id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         primary_key=True)
