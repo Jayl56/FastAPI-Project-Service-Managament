@@ -148,6 +148,7 @@ def upload_documents_for_project(*,db_session:Session,user_id:uuid.UUID,project_
                  project_id=project_id,
                  uploaded_by=user_id,
                  s3_key=doc.s3_key,
+                 file_size=doc.file_size,
             )
             documents.append(new_doc)
         db_session.add_all(documents)
@@ -159,7 +160,7 @@ def upload_documents_for_project(*,db_session:Session,user_id:uuid.UUID,project_
 
 def get_project_storage_used(db_session:Session,project_id:uuid.UUID)->int:
     statement = (
-        select(func.sum(Document.size)).
+        select(func.sum(Document.file_size)).
         where(Document.project_id == project_id)
     )
     size = db_session.exec(statement).one()
