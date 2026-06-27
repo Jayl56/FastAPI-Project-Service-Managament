@@ -43,6 +43,7 @@ send_email,
 verify_email_token
 )
 import backend.utils.s3_utils as s3_utils
+from backend.utils.files_utils import get_file_size
 
 
 router=APIRouter(tags=["projects"])

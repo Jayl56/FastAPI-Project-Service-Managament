@@ -8,6 +8,7 @@ from sqlmodel import Session,select,col
 from backend.models.models_API import (
     UserCreate, CreateProject, ProjectAccess, UpdateProject,UploadDocuments, UserUpdatesAPI
 )
+from sqlalchemy import func
 
 
 
@@ -155,6 +156,14 @@ def upload_documents_for_project(*,db_session:Session,user_id:uuid.UUID,project_
             project.updated_at=datetime.now(timezone.utc)
         db_session.commit()
 
+
+def get_project_storage_used(db_session:Session,project_id:uuid.UUID)->int:
+    statement = (
+        select(func.sum(Document.size)).
+        where(Document.project_id == project_id)
+    )
+    size = db_session.exec(statement).one()
+    return size or 0
 
 def get_document_by_id(*,db_session:Session, document_id:uuid.UUID)->Document|None:
     """Retrieves a document by its id."""

@@ -81,6 +81,7 @@ class Document(SQLModel,table=True):
     s3_key: str|None =Field(
         max_length=500,
         unique=True)
+    file_size: int = Field(nullable=False)
     uploaded_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True), nullable=False, index=True),
