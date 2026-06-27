@@ -21,7 +21,8 @@ ActiveProject,
 ActiveMember,
 is_member,
 is_owner,
-ProjectOwner)
+ProjectOwner,
+validate_project_storage_limit)
 
 from backend.models.models_API import (
 ProjectAccess,
@@ -127,6 +128,12 @@ def upload_new_docs_for_project(
         files: Annotated[list[UploadFile], File(...)]
         )->ProjectPublic:
     docs=[]
+    validate_project_storage_limit(
+        db_session=session,
+        project=project,
+        files=files
+    )
+
     for file in files:
        s3_key=s3_utils.upload_s3_file_object(
            settings.S3_BUCKET_NAME,
@@ -134,7 +141,9 @@ def upload_new_docs_for_project(
            project.project_id)
        docs.append(BaseDocument(
            filename=file.filename,
-           s3_key=s3_key))
+           s3_key=s3_key,
+           file_size=get_file_size(file.file),)
+       )
 
     upload_docs=UploadDocuments(documents=docs)
 
