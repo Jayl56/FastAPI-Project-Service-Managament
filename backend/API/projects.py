@@ -101,7 +101,7 @@ def get_project_info(*,project:ActiveProject)->ProjectPublicInfo:
 @router.put("/project/{project_id}/info",
             status_code=status.HTTP_200_OK,
             response_model=ProjectPublicInfo,
-            dependencies=[Depends(is_member)])
+            dependencies=[Depends(is_owner)])
 def update_project_info(
         *,session:SessionDep,
         project:ActiveProject,

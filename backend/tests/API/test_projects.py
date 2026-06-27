@@ -170,7 +170,7 @@ def test_get_project_info(
     assert project.project_id
     assert isinstance(project.updated_at, datetime.datetime)
 
-def test_update_project_info(
+def test_update_project_info_by_owner(
         db:Session,
         client:TestClient,
         owner_user_token_headers:dict[str,str],
