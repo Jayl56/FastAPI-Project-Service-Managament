@@ -8,8 +8,9 @@ from backend.tests.utils.users import create_random_user
 import backend.crud_db as crud
 from sqlmodel import Session
 from datetime import timedelta
+from unittest.mock import patch,MagicMock
 import pytest
-from fastapi import HTTPException
+from fastapi import HTTPException,UploadFile
 import jwt
 import uuid
 
@@ -196,6 +197,44 @@ def test_get_actual_document_non_existent_doc_error(
         control.get_actual_document(db,fake_id,crud_test_user)
     assert exc.value.status_code == 404
     assert exc.value.detail == "Document does not exist."
+
+@pytest.mark.parametrize("size",[settings.PROJECT_STORAGE_LIMIT_BYTES+1,settings.PROJECT_STORAGE_LIMIT_BYTES])
+def test_validate_project_storage_limit_exceed(
+        db:Session,
+        crud_test_project:Project,
+        size:int)->None:
+
+    mock_file=MagicMock()
+    mock_file.file=MagicMock()
+
+    with patch("backend.core.dependencies.get_file_size") as mock_func_size:
+        mock_func_size.return_value=size
+        with pytest.raises(HTTPException) as exc:
+            control.validate_project_storage_limit(
+            db_session=db,
+            project=crud_test_project,
+            files=[mock_file],)
+
+    assert exc.value.status_code==409
+    assert exc.value.detail=="Uploading these files would exceed the project's storage limit."
+    mock_func_size.assert_called_once()
+
+def test_validate_project_storage_limit_valid_files(
+        db:Session,
+        crud_test_project:Project,
+)->None:
+
+    mock_file = MagicMock()
+    mock_file.file = MagicMock()
+
+    with patch("backend.core.dependencies.get_file_size") as mock_func_size:
+        mock_func_size.return_value=settings.PROJECT_STORAGE_LIMIT_BYTES-1
+        control.validate_project_storage_limit(
+        db_session=db,
+        project=crud_test_project,
+        files=[mock_file])
+
+    mock_func_size.assert_called_once()
 
 
 
