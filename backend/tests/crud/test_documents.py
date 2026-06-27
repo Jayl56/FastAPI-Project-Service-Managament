@@ -36,5 +36,28 @@ def test_update_document(
     assert updated_doc.filename==new_info["filename"]
     assert updated_doc.uploaded_at==new_info["uploaded_at"]
 
+def test_get_project_storage(
+        db:Session,
+        crud_test_project:Project,
+        doc_for_crud_test_project:Document
+)->None:
+
+    doc_size=doc_for_crud_test_project.file_size
+    project_size=crud.get_project_storage_used(
+        db_session=db,
+         project_id=crud_test_project.project_id
+    )
+    assert project_size==doc_size
+
+def test_get_project_storage_empty_project_return_zero_value(
+        db:Session,
+        crud_test_project:Project,
+):
+    project_size=crud.get_project_storage_used(
+        db_session=db,
+        project_id=crud_test_project.project_id
+    )
+    assert project_size==0
+
 
 
