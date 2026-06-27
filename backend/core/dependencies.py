@@ -116,12 +116,12 @@ def get_actual_document(
 AvailableDoc=Annotated[db_model.Document,Depends(get_actual_document)]
 
 def validate_project_storage_limit(
-        *,session:Session,
+        *,db_session:Session,
         project:db_model.Project,
-        files:list[UploadFiles]
+        files:list[UploadFile]
 )->None:
     actual_size = crud_db.get_project_storage_used(
-        db_session=session,
+        db_session=db_session,
         project_id=project.project_id
     )
     upload_size = sum(get_file_size(file.file) for file in files)
@@ -129,7 +129,7 @@ def validate_project_storage_limit(
     if new_size >= settings.PROJECT_STORAGE_LIMIT_BYTES:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Uploading this file would exceed the project's storage limit."
+            detail="Uploading these files would exceed the project's storage limit."
         )
 
 
