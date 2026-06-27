@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str =""
     POSTGRES_DB: str =""
     POSTGRES_PORT: int=5432
+    PROJECT_STORAGE_LIMIT_BYTES: int = 500*1024**2
 
     @computed_field
     @property

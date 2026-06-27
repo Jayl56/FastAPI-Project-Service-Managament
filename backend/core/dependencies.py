@@ -1,7 +1,7 @@
 from collections.abc import Generator
 import uuid
 from typing import Annotated
-from fastapi import Depends,HTTPException,status
+from fastapi import Depends,HTTPException,status,UploadFile
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import InvalidTokenError,ExpiredSignatureError
@@ -12,6 +12,7 @@ from sqlmodel import Session, SQLModel,create_engine
 from backend.core.security import ALGORITHM,TokenPayload
 from backend.core.app_config import settings
 import backend.crud_db as crud_db
+from backend.utils.files_utils import get_file_size
 
 
 engine = create_engine(
@@ -114,6 +115,22 @@ def get_actual_document(
 
 AvailableDoc=Annotated[db_model.Document,Depends(get_actual_document)]
 
+def validate_project_storage_limit(
+        *,session:Session,
+        project:db_model.Project,
+        files:list[UploadFiles]
+)->None:
+    actual_size = crud_db.get_project_storage_used(
+        db_session=session,
+        project_id=project.project_id
+    )
+    upload_size = sum(get_file_size(file.file) for file in files)
+    new_size = actual_size + upload_size
+    if new_size >= settings.PROJECT_STORAGE_LIMIT_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Uploading this file would exceed the project's storage limit."
+        )
 
 
 
