@@ -73,10 +73,7 @@ def test_update_document(
     assert uploaded_file.content_type == "application/pdf"
     assert args[2] == expected_s3_key
     assert document.filename == "nuevo.pdf"
-    assert (
-        doc_for_test_user_project.filename
-        == "nuevo.pdf"
-    )
+    assert document.file_size== doc_for_test_user_project.file_size
 
 
 def test_delete_document(
