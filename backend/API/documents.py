@@ -8,6 +8,7 @@ DocumentDownloadResponse,
 DocumentPublic,
 )
 from backend.core.app_config import settings
+from backend.core.dependencies import validate_project_storage_limit
 import backend.utils.s3_utils as s3_utils
 
 
@@ -31,20 +32,33 @@ def update_document(
         document:AvailableDoc,
         file:Annotated[UploadFile, File(...)]
 )->DocumentPublic:
+
+    validate_project_storage_limit(
+        db_session=session,
+        project=crud_db.get_project_by_id(
+            db_session=session,
+            project_id=document.project_id
+        ),
+        files=[file]
+    )
+
     update_data = {
         "filename": file.filename,
         "uploaded_at": datetime.now(timezone.utc)
     }
+
     s3_utils.update_s3_file_object(
         settings.S3_BUCKET_NAME,
         file,
         document.s3_key
     )
+
     doc_updated=crud_db.update_document(
         db_session=session,
         document_in=document,
         update_info=update_data
     )
+
     return doc_updated
 
 @router.delete("/{doc_id}",
