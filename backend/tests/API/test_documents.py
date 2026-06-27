@@ -3,9 +3,8 @@ from sqlmodel import Session
 from fastapi.testclient import TestClient
 import backend.crud_db as crud
 from backend.core.app_config import settings
-from backend.models.models_db import Document,Project
+from backend.models.models_db import Document
 from backend.models.models_API import DocumentPublic,DocumentDownloadResponse
-from backend.tests.utils.utils import random_lower_string
 from unittest.mock import patch
 
 

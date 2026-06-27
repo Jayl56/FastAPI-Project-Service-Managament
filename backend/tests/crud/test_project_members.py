@@ -1,6 +1,6 @@
 import backend.crud_db as crud
 import uuid
-from backend.models.models_db import ProjectMember,User,Project
+from backend.models.models_db import User,Project
 from backend.models.models_API import CreateProject,UserCreate,ProjectAccess
 from backend.tests.utils.utils import random_email, random_lower_string
 from sqlmodel import Session

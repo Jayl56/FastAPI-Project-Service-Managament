@@ -1,4 +1,3 @@
-from backend.core.app_config import settings
 import random
 import string
 

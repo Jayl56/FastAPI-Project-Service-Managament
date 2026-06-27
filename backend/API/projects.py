@@ -22,7 +22,7 @@ ActiveMember,
 is_member,
 is_owner,
 ProjectOwner)
-from backend.models.models_db import Project
+
 from backend.models.models_API import (
 ProjectAccess,
 CreateProject,

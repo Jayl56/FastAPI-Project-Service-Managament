@@ -6,15 +6,12 @@ from backend.models.models_db import Project,User
 from backend.models.models_API import (
     UserCreate,
     ProjectAccess,
-    UpdateProject,
-    UploadDocuments,
-    CreateProject,
     ProjectPublicInfo,
     ProjectPublic,
     ProjectsPublic,
     DocumentsPublic)
 from backend.utils.email_utils import EmailData,generate_email_token
-from backend.tests.utils.documents import create_random_docs,create_random_docs_for_project
+from backend.tests.utils.documents import create_random_docs_for_project
 from backend.tests.utils.utils import random_lower_string,random_email
 import backend.crud_db as crud
 from unittest.mock import patch

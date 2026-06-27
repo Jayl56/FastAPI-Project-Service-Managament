@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from backend.API import auth,projects,users,documents
-from backend.core.app_config import settings
+
 
 main_api_router = APIRouter()
 main_api_router.include_router(auth.router)

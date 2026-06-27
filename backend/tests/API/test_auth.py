@@ -3,10 +3,10 @@ from sqlmodel import Session
 from fastapi.testclient import TestClient
 import backend.crud_db as crud
 from backend.core.app_config import settings
-from backend.models.models_db import User,Project
+from backend.models.models_db import User
 from backend.models.models_API import UserCreate
 from unittest.mock import patch
-from backend.tests.utils.utils import random_email, random_lower_string
+from backend.tests.utils.utils import  random_lower_string
 from backend.utils.email_utils import generate_email_token
 
 

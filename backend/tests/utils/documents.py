@@ -3,7 +3,6 @@ from typing import List
 import backend.crud_db as crud
 from backend.models.models_API import UploadDocuments,BaseDocument
 from backend.models.models_db import Document,Project,User
-from backend.tests.utils.projects import create_random_project
 from backend.tests.utils.utils import random_lower_string
 
 def create_random_docs(n_docs:int=1)->List[Document]:

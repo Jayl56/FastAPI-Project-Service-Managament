@@ -7,7 +7,6 @@ from backend.models.models_API import (
     UploadDocuments
 )
 from backend.tests.utils.utils import random_email, random_lower_string
-from backend.tests.utils.documents import create_random_docs_for_project
 from backend.tests.utils.projects import create_random_participant
 import backend.crud_db as crud
 from sqlmodel import Session

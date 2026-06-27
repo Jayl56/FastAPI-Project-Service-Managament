@@ -13,13 +13,10 @@ generate_email_token,
 verify_email_token
 )
 from backend.models.models_API import (
-    UserNewRegister,
-    UserCreate,
-    PublicUser,
     Message,
     UserUpdatesAPI)
 from backend.core.app_config import settings,templates
-from backend.core.control_db import SessionDep,TokenDep
+from backend.core.control_db import SessionDep
 
 router = APIRouter(
     prefix="/auth",
