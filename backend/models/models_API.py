@@ -93,6 +93,7 @@ class DocumentPublicByProject(SQLModel):
     filename: str
     doc_id: uuid.UUID
     uploaded_at: datetime
+    file_size: int
 
 class ProjectPublicInfo(BaseProject):
     project_id: uuid.UUID
