@@ -87,6 +87,7 @@ class BaseDocument(SQLModel):
         nullable=False,
         max_length=255)
     s3_key: str=Field(max_length=500)
+    file_size: int
 
 class DocumentPublicByProject(SQLModel):
     filename: str
