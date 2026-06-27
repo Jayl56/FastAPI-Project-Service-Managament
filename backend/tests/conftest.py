@@ -9,7 +9,7 @@ from sqlalchemy import delete
 from backend.core.app_config import settings
 from backend.models.models_API import UserCreate,CreateProject,UploadDocuments
 from backend.models.models_db import User,Project,ProjectMember,Document
-from backend.core.control_db import engine,init_db
+from backend.core.dependencies import engine,init_db
 from backend.main import app
 import backend.crud_db as crud
 from backend.tests.utils.users import authentication_token_from_email,authentication_data_from_email

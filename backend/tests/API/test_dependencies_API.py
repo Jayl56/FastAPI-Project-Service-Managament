@@ -1,4 +1,4 @@
-import backend.core.control_db as control
+import backend.core.dependencies as control
 from backend.core.app_config import settings
 from backend.core.security import create_access_token,ALGORITHM
 from backend.models.models_API import UserCreate,ProjectAccess

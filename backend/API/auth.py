@@ -16,7 +16,7 @@ from backend.models.models_API import (
     Message,
     UserUpdatesAPI)
 from backend.core.app_config import settings,templates
-from backend.core.control_db import SessionDep
+from backend.core.dependencies import SessionDep
 
 router = APIRouter(
     prefix="/auth",

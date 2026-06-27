@@ -1,5 +1,5 @@
 import logging
-from backend.core.control_db import init_db
+from backend.core.dependencies import init_db
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

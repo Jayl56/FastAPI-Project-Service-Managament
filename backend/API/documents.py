@@ -2,7 +2,7 @@ from datetime import datetime,timezone
 from typing import Annotated
 from fastapi import APIRouter,status,File,UploadFile
 import backend.crud_db as crud_db
-from backend.core.control_db import SessionDep,AvailableDoc
+from backend.core.dependencies import SessionDep,AvailableDoc
 from backend.models.models_API import (
 DocumentDownloadResponse,
 DocumentPublic,

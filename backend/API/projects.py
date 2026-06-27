@@ -14,7 +14,7 @@ from fastapi import (
     Query)
 from backend.core.app_config import templates,settings
 import backend.crud_db as  crud_db
-from backend.core.control_db import (
+from backend.core.dependencies import (
 CurrentUser,
 SessionDep,
 ActiveProject,
