@@ -11,7 +11,7 @@ ALLOWED_EXTENSIONS = {
     ".docx"
 }
 
-async def validate_document(file: UploadFile) -> None:
+def validate_document(file: UploadFile) -> None:
     extension = Path(file.filename).suffix.lower()
 
     if extension not in ALLOWED_EXTENSIONS:
@@ -20,8 +20,8 @@ async def validate_document(file: UploadFile) -> None:
             detail="Only PDF, DOC and DOCX files are allowed."
         )
 
-    header = await file.read(8)
-    await file.seek(0)
+    header = file.read(8)
+    file.seek(0)
 
     if extension == ".pdf":
         if not header.startswith(b"%PDF-"):
