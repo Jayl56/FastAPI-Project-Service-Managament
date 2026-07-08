@@ -1,15 +1,17 @@
 
-import jwt
 import logging
 from dataclasses import dataclass
-from backend.core.app_config import settings
-from datetime import timedelta,timezone,datetime
-import emails
-from backend.models.models_API import ProjectAccess
-from jinja2 import Template
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-import backend.core.security as security
 from typing import Any
+
+import emails
+import jwt
+from jinja2 import Template
+
+import backend.core.security as security
+from backend.core.app_config import settings
+from backend.models.models_API import ProjectAccess
 from backend.models.models_db import Project
 
 logging.basicConfig(level=logging.INFO)

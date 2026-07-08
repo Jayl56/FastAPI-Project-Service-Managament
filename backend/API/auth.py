@@ -1,22 +1,19 @@
-from pydantic import EmailStr
-from fastapi import HTTPException,Depends,Form,Request,APIRouter,status
-from fastapi.responses import HTMLResponse
-from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from typing import Annotated
-from backend.core.security import Token,create_access_token
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
+
 import backend.crud_db as crud_db
-from backend.utils.email_utils import (
-send_email,
-generate_reset_password_email,
-generate_email_token,
-verify_email_token
-)
-from backend.models.models_API import (
-    Message,
-    UserUpdatesAPI)
-from backend.core.app_config import settings,templates
+from backend.core.app_config import settings, templates
 from backend.core.dependencies import SessionDep
+from backend.core.security import Token, create_access_token
+from backend.models.models_API import Message, UserUpdatesAPI
+from backend.utils.email_utils import (generate_email_token,
+                                       generate_reset_password_email,
+                                       send_email, verify_email_token)
 
 router = APIRouter(
     prefix="/auth",

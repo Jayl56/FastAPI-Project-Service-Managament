@@ -1,25 +1,21 @@
-from sqlmodel import Session
-from fastapi import UploadFile
-from fastapi.testclient import TestClient
-from backend.core.app_config import settings
-from backend.models.models_db import Project,User
-from backend.models.models_API import (
-    UserCreate,
-    ProjectAccess,
-    ProjectPublicInfo,
-    ProjectPublic,
-    ProjectsPublic,
-    DocumentsPublic)
-from backend.utils.email_utils import EmailData,generate_email_token
-from backend.tests.utils.documents import create_random_docs_for_project
-from backend.tests.utils.utils import random_lower_string,random_email
-import backend.crud_db as crud
-from unittest.mock import patch
 import datetime
 import uuid
+from unittest.mock import patch
+
 import pytest
+from fastapi import UploadFile
+from fastapi.testclient import TestClient
+from sqlmodel import Session
 
-
+import backend.crud_db as crud
+from backend.core.app_config import settings
+from backend.models.models_API import (DocumentsPublic, ProjectAccess,
+                                       ProjectPublic, ProjectPublicInfo,
+                                       ProjectsPublic, UserCreate)
+from backend.models.models_db import Project, User
+from backend.tests.utils.documents import create_random_docs_for_project
+from backend.tests.utils.utils import random_email, random_lower_string
+from backend.utils.email_utils import EmailData, generate_email_token
 
 
 def test_generate_project(

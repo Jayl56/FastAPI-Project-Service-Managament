@@ -1,9 +1,11 @@
-import backend.crud_db as crud
 import uuid
-from backend.models.models_db import User,Project
-from backend.models.models_API import CreateProject,UserCreate,ProjectAccess
-from backend.tests.utils.utils import random_email, random_lower_string
+
 from sqlmodel import Session
+
+import backend.crud_db as crud
+from backend.models.models_API import CreateProject, ProjectAccess, UserCreate
+from backend.models.models_db import Project, User
+from backend.tests.utils.utils import random_email, random_lower_string
 
 
 def test_create_project_member_owner(

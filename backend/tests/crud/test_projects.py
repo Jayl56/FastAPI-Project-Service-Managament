@@ -1,15 +1,16 @@
-from fastapi.encoders import jsonable_encoder
 import datetime
+
 import pytest
-from backend.models.models_db import Project,Document,User
-from backend.models.models_API import (
-    UserCreate, CreateProject, ProjectAccess, UpdateProject,
-    UploadDocuments
-)
-from backend.tests.utils.utils import random_email, random_lower_string
-from backend.tests.utils.projects import create_random_participant
-import backend.crud_db as crud
+from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session
+
+import backend.crud_db as crud
+from backend.models.models_API import (CreateProject, ProjectAccess,
+                                       UpdateProject, UploadDocuments,
+                                       UserCreate)
+from backend.models.models_db import Document, Project, User
+from backend.tests.utils.projects import create_random_participant
+from backend.tests.utils.utils import random_email, random_lower_string
 
 
 def test_create_project(

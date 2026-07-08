@@ -1,12 +1,13 @@
+import uuid
+
 from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session
-import uuid
+
 import backend.crud_db as crud
 from backend.core.security import verify_password
-from backend.models.models_API import UserCreate,UserUpdatesAPI
+from backend.models.models_API import UserCreate, UserUpdatesAPI
 from backend.models.models_db import User
 from backend.tests.utils.utils import random_email, random_lower_string
-
 
 
 def test_create_user(

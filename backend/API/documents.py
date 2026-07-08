@@ -1,17 +1,14 @@
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter,status,File,UploadFile
+
+from fastapi import APIRouter, File, UploadFile, status
+
 import backend.crud_db as crud_db
-from backend.core.dependencies import SessionDep,AvailableDoc
-from backend.models.models_API import (
-DocumentDownloadResponse,
-DocumentPublic,
-)
-from backend.core.app_config import settings
-from backend.core.dependencies import validate_project_storage_limit
 import backend.utils.s3_utils as s3_utils
-
-
+from backend.core.app_config import settings
+from backend.core.dependencies import (AvailableDoc, SessionDep,
+                                       validate_project_storage_limit)
+from backend.models.models_API import DocumentDownloadResponse, DocumentPublic
 
 router=APIRouter(prefix="/document",tags=["documents"])
 

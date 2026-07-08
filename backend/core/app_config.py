@@ -1,12 +1,9 @@
 import secrets
-from pydantic import EmailStr,model_validator
-from pydantic_settings import BaseSettings,SettingsConfigDict
-from pydantic import (
-    PostgresDsn,
-    computed_field)
-from typing import Literal
-from typing import Self
+from typing import Literal, Self
+
 from fastapi.templating import Jinja2Templates
+from pydantic import EmailStr, PostgresDsn, computed_field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

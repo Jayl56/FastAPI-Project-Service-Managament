@@ -1,9 +1,9 @@
 import uuid
-from fastapi import UploadFile,HTTPException
-from backend.core.aws import s3_client as s3
 from pathlib import Path
 
+from fastapi import HTTPException, UploadFile
 
+from backend.core.aws import s3_client as s3
 
 ALLOWED_EXTENSIONS = {
     ".pdf",

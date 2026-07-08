@@ -1,15 +1,16 @@
+import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-import pytest
 
 import backend.crud_db as crud
 from backend.core.app_config import settings
 from backend.core.security import verify_password
-from backend.models.models_db import User,Project
-from backend.models.models_API import UserCreate,ProjectAccess,PublicUser
+from backend.models.models_API import ProjectAccess, PublicUser, UserCreate
+from backend.models.models_db import Project, User
+from backend.tests.utils.projects import create_random_project
 from backend.tests.utils.users import user_authentication_headers
 from backend.tests.utils.utils import random_email, random_lower_string
-from backend.tests.utils.projects import create_random_project
+
 
 def test_register_user(client: TestClient,db:Session)->None:
     username=random_lower_string()

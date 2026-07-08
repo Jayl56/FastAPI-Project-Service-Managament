@@ -1,18 +1,21 @@
-import backend.core.dependencies as control
-from backend.core.app_config import settings
-from backend.core.security import create_access_token,ALGORITHM
-from backend.models.models_API import UserCreate,ProjectAccess
-from backend.models.models_db import User,Project,Document
-from backend.tests.utils.utils import random_email, random_lower_string
-from backend.tests.utils.users import create_random_user
-import backend.crud_db as crud
-from sqlmodel import Session
-from datetime import timedelta
-from unittest.mock import patch,MagicMock
-import pytest
-from fastapi import HTTPException,UploadFile
-import jwt
 import uuid
+from datetime import timedelta
+from unittest.mock import MagicMock, patch
+
+import jwt
+import pytest
+from fastapi import HTTPException, UploadFile
+from sqlmodel import Session
+
+import backend.core.dependencies as control
+import backend.crud_db as crud
+from backend.core.app_config import settings
+from backend.core.security import ALGORITHM, create_access_token
+from backend.models.models_API import ProjectAccess, UserCreate
+from backend.models.models_db import Document, Project, User
+from backend.tests.utils.users import create_random_user
+from backend.tests.utils.utils import random_email, random_lower_string
+
 
 def test_get_current_user(
         db:Session,

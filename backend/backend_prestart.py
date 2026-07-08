@@ -1,9 +1,11 @@
 import logging
+
 from sqlalchemy import Engine
 from sqlmodel import Session, select
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
-from backend.core.dependencies import engine
+from tenacity import (after_log, before_log, retry, stop_after_attempt,
+                      wait_fixed)
 
+from backend.core.dependencies import engine
 
 logging.basicConfig(
     level=logging.INFO,

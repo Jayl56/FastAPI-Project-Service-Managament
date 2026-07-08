@@ -1,19 +1,23 @@
 from collections.abc import Generator
-import pytest
 from io import BytesIO
+
+import pytest
 from fastapi import UploadFile
 from fastapi.testclient import TestClient
-from sqlmodel import Session
 from sqlalchemy import delete
+from sqlmodel import Session
 
-from backend.core.app_config import settings
-from backend.models.models_API import UserCreate,CreateProject,UploadDocuments
-from backend.models.models_db import User,Project,ProjectMember,Document
-from backend.core.dependencies import engine,init_db
-from backend.main import app
 import backend.crud_db as crud
-from backend.tests.utils.users import authentication_token_from_email,authentication_data_from_email
-from backend.tests.utils.documents import create_random_docs,create_random_docs_for_project
+from backend.core.app_config import settings
+from backend.core.dependencies import engine, init_db
+from backend.main import app
+from backend.models.models_API import (CreateProject, UploadDocuments,
+                                       UserCreate)
+from backend.models.models_db import Document, Project, ProjectMember, User
+from backend.tests.utils.documents import (create_random_docs,
+                                           create_random_docs_for_project)
+from backend.tests.utils.users import (authentication_data_from_email,
+                                       authentication_token_from_email)
 from backend.tests.utils.utils import random_email, random_lower_string
 
 

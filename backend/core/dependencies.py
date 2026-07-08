@@ -1,19 +1,20 @@
-from collections.abc import Generator
 import uuid
+from collections.abc import Generator
 from typing import Annotated
-from fastapi import Depends,HTTPException,status,UploadFile
-from fastapi.security import OAuth2PasswordBearer
-import jwt
-from jwt.exceptions import InvalidTokenError,ExpiredSignatureError
-from pydantic import ValidationError
-from backend.models.models_API import ProjectAccess
-import backend.models.models_db as db_model
-from sqlmodel import Session, SQLModel,create_engine
-from backend.core.security import ALGORITHM,TokenPayload
-from backend.core.app_config import settings
-import backend.crud_db as crud_db
-from backend.utils.files_utils import get_file_size
 
+import jwt
+from fastapi import Depends, HTTPException, UploadFile, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from pydantic import ValidationError
+from sqlmodel import Session, SQLModel, create_engine
+
+import backend.crud_db as crud_db
+import backend.models.models_db as db_model
+from backend.core.app_config import settings
+from backend.core.security import ALGORITHM, TokenPayload
+from backend.models.models_API import ProjectAccess
+from backend.utils.files_utils import get_file_size
 
 engine = create_engine(
     str(settings.sqlalchemy_database_uri)

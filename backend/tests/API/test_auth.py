@@ -1,14 +1,15 @@
 
-from sqlmodel import Session
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
+from sqlmodel import Session
+
 import backend.crud_db as crud
 from backend.core.app_config import settings
-from backend.models.models_db import User
 from backend.models.models_API import UserCreate
-from unittest.mock import patch
-from backend.tests.utils.utils import  random_lower_string
+from backend.models.models_db import User
+from backend.tests.utils.utils import random_lower_string
 from backend.utils.email_utils import generate_email_token
-
 
 
 def test_login_get_access_token(

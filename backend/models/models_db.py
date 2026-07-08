@@ -1,14 +1,12 @@
-from datetime import datetime,timezone
 import uuid
-from typing import List,Optional
+from datetime import datetime, timezone
+from typing import List, Optional
+
 from pydantic import EmailStr
+from sqlalchemy import CheckConstraint, Column, DateTime, Text
+from sqlmodel import Field, Relationship, SQLModel
+
 from backend.models.models_API import ProjectAccess
-from sqlalchemy import Text,Column,DateTime,CheckConstraint
-from sqlmodel import (
-SQLModel,
-Field,
-Relationship,
-)
 
 
 class ProjectMember(SQLModel,table=True):

@@ -1,51 +1,28 @@
 import uuid
 from typing import Annotated
-from pydantic import EmailStr
+
+from fastapi import (APIRouter, Depends, File, Form, HTTPException, Query,
+                     Request, UploadFile, status)
 from fastapi.responses import HTMLResponse
-from fastapi import (
-    UploadFile,
-    File,
-    Request,
-    APIRouter,
-    HTTPException,
-    status,
-    Depends,
-    Form,
-    Query)
-from backend.core.app_config import templates,settings
-import backend.crud_db as  crud_db
-from backend.core.dependencies import (
-CurrentUser,
-SessionDep,
-ActiveProject,
-ActiveMember,
-is_member,
-is_owner,
-ProjectOwner,
-validate_project_storage_limit)
+from pydantic import EmailStr
 
-from backend.models.models_API import (
-ProjectAccess,
-CreateProject,
-UpdateProject,
-ProjectPublic,
-ProjectPublicInfo,
-ProjectsPublic,
-BaseDocument,
-UploadDocuments,
-DocumentPublicByProject,
-DocumentsPublic,
-Message
-)
-from backend.utils.email_utils import (
-generate_email_token,
-generate_invitation_email,
-send_email,
-verify_email_token
-)
+import backend.crud_db as crud_db
 import backend.utils.s3_utils as s3_utils
+from backend.core.app_config import settings, templates
+from backend.core.dependencies import (ActiveMember, ActiveProject,
+                                       CurrentUser, ProjectOwner, SessionDep,
+                                       is_member, is_owner,
+                                       validate_project_storage_limit)
+from backend.models.models_API import (BaseDocument, CreateProject,
+                                       DocumentPublicByProject,
+                                       DocumentsPublic, Message, ProjectAccess,
+                                       ProjectPublic, ProjectPublicInfo,
+                                       ProjectsPublic, UpdateProject,
+                                       UploadDocuments)
+from backend.utils.email_utils import (generate_email_token,
+                                       generate_invitation_email, send_email,
+                                       verify_email_token)
 from backend.utils.files_utils import get_file_size
-
 
 router=APIRouter(tags=["projects"])
 

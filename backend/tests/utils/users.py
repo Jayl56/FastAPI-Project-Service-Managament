@@ -1,10 +1,11 @@
 from fastapi.testclient import TestClient
 from sqlmodel import Session
+
 import backend.crud_db as crud
 from backend.core.app_config import settings
-from backend.models.models_db import User
 from backend.models.models_API import UserCreate, UserUpdatesAPI
-from backend.tests.utils.utils import random_lower_string,random_email
+from backend.models.models_db import User
+from backend.tests.utils.utils import random_email, random_lower_string
 
 
 def user_authentication_headers(

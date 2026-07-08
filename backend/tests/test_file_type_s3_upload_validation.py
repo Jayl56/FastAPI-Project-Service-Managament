@@ -1,7 +1,7 @@
 from io import BytesIO
 
 import pytest
-from fastapi import UploadFile,HTTPException
+from fastapi import HTTPException, UploadFile
 
 from backend.utils.s3_utils import validate_document
 

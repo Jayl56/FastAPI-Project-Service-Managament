@@ -1,9 +1,11 @@
 from sqlmodel import Session
+
 import backend.crud_db as crud
-from backend.models.models_API import CreateProject,ProjectAccess
-from backend.models.models_db import Project,User
+from backend.models.models_API import CreateProject, ProjectAccess
+from backend.models.models_db import Project, User
 from backend.tests.utils.users import create_random_user
 from backend.tests.utils.utils import random_lower_string
+
 
 def create_random_project(db:Session)->Project:
     user=create_random_user(db)

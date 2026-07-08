@@ -1,11 +1,13 @@
 
-from datetime import datetime,timezone,timedelta
-from sqlmodel import SQLModel
-from pwdlib import PasswordHash
-import jwt
-from backend.core.app_config import settings
+from datetime import datetime, timedelta, timezone
 from typing import Any
+
+import jwt
+from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
+from sqlmodel import SQLModel
+
+from backend.core.app_config import settings
 
 password_hash= PasswordHash((Argon2Hasher(),))
 ALGORITHM = "HS256"

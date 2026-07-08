@@ -1,5 +1,6 @@
 import boto3
 from mypy_boto3_s3 import S3Client
+
 from backend.core.app_config import settings
 
 

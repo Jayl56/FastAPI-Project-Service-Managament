@@ -1,20 +1,13 @@
-from fastapi import APIRouter,HTTPException
 from typing import Any
-from backend.models.models_API import (
-UserCreate,
-PublicUser,
-UserUpdates,
-Message,
-UpdatePassword,
-UserNewRegister,
-ProjectAccess
-)
+
+from fastapi import APIRouter, HTTPException
+
 import backend.crud_db as crud_db
-from backend.core.dependencies import (
-SessionDep,
-CurrentUser
-)
-from backend.core.security import verify_password,get_hash_password
+from backend.core.dependencies import CurrentUser, SessionDep
+from backend.core.security import get_hash_password, verify_password
+from backend.models.models_API import (Message, ProjectAccess, PublicUser,
+                                       UpdatePassword, UserCreate,
+                                       UserNewRegister, UserUpdates)
 
 router=APIRouter(prefix="/users",tags=["users"])
 

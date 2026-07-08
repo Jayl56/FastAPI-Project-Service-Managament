@@ -1,9 +1,11 @@
-from sqlmodel import Session
-from datetime import datetime,timezone
-import backend.crud_db as crud
-from backend.models.models_db import Project,Document,User
-from backend.tests.utils.utils import random_lower_string
+from datetime import datetime, timezone
+
 from fastapi.encoders import jsonable_encoder
+from sqlmodel import Session
+
+import backend.crud_db as crud
+from backend.models.models_db import Document, Project, User
+from backend.tests.utils.utils import random_lower_string
 
 
 def test_get_document_by_id(
