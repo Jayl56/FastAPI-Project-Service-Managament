@@ -20,8 +20,8 @@ def validate_document(file: UploadFile) -> None:
             detail="Only PDF, DOC and DOCX files are allowed."
         )
 
-    header = file.read(8)
-    file.seek(0)
+    header = file.file.read(8)
+    file.file.seek(0)
 
     if extension == ".pdf":
         if not header.startswith(b"%PDF-"):

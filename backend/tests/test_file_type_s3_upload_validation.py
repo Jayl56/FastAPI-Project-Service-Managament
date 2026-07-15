@@ -6,8 +6,8 @@ from fastapi import HTTPException, UploadFile
 from backend.utils.s3_utils import validate_document
 
 
-@pytest.mark.asyncio
-async def test_validate_document_pdf_valid() -> None:
+
+def test_validate_document_pdf_valid() -> None:
     file = UploadFile(
         filename="document.pdf",
         file=BytesIO(
@@ -15,12 +15,12 @@ async def test_validate_document_pdf_valid() -> None:
         )
     )
 
-    await validate_document(file)
+    validate_document(file)
 
     assert file.filename == "document.pdf"
 
-@pytest.mark.asyncio
-async def test_validate_document_invalid_extension() -> None:
+
+def test_validate_document_invalid_extension() -> None:
     file = UploadFile(
         filename="image.png",
         file=BytesIO(
@@ -29,12 +29,12 @@ async def test_validate_document_invalid_extension() -> None:
     )
 
     with pytest.raises(HTTPException) as exc:
-        await validate_document(file)
+        validate_document(file)
 
     assert exc.value.status_code == 400
     assert exc.value.detail == "Only PDF, DOC and DOCX files are allowed."
 
-@pytest.mark.asyncio
+
 @pytest.mark.parametrize(
     "filename,content,expected_detail",
     [
@@ -43,7 +43,7 @@ async def test_validate_document_invalid_extension() -> None:
         ("a.doc", b"BADDATA", "Invalid DOC file."),
     ],
 )
-async def test_validate_document_invalid_signature(
+def test_validate_document_invalid_signature(
     filename: str,
     content: bytes,
     expected_detail: str,
@@ -54,7 +54,8 @@ async def test_validate_document_invalid_signature(
     )
 
     with pytest.raises(HTTPException) as exc:
-        await validate_document(file)
+        validate_document(file)
 
     assert exc.value.status_code == 400
     assert exc.value.detail == expected_detail
+
